@@ -18,33 +18,30 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight">
-            Build Climate Resilience,
-            <br />
-            <span className="text-primary">Earn While You Learn</span>
+            GreenWorks CodeX
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Access simple climate-resilience micro-jobs, learn through hands-on training, 
-            and track both your economic rewards and environmental impact across Europe.
+            Climate-resilience micro-jobs and learning for vulnerable communities in Europe.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button asChild size="lg" className="text-base">
+              <Link to="/regions">
+                <Globe className="mr-2 h-5 w-5" />
+                Explore European Regions
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="text-base">
               <Link to="/jobs">
                 <Briefcase className="mr-2 h-5 w-5" />
                 Browse Micro-Jobs
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="text-base">
+            <Button asChild size="lg" variant="secondary" className="text-base">
               <Link to="/impact">
                 <TrendingUp className="mr-2 h-5 w-5" />
-                View Impact Dashboard
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary" className="text-base">
-              <Link to="/regions">
-                <Globe className="mr-2 h-5 w-5" />
-                Explore European Regions
+                View Impact
               </Link>
             </Button>
           </div>

@@ -166,14 +166,14 @@ const Jobs = () => {
                   <CardDescription className="line-clamp-2">{job.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <MapPin className="h-4 w-4" />
                       {job.location}
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Clock className="h-4 w-4" />
-                      {job.estimated_duration_minutes} min
+                      Time: {job.estimated_duration_minutes} minutes
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Award className="h-4 w-4 text-warning" />
@@ -181,7 +181,7 @@ const Jobs = () => {
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Leaf className="h-4 w-4 text-success" />
-                      {job.estimated_co2_kg_impact} kg CO₂
+                      Climate impact: {job.estimated_co2_kg_impact} kg CO₂
                     </div>
                   </div>
                   <Button asChild className="w-full">

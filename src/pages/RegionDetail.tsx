@@ -177,11 +177,33 @@ const RegionDetail = () => {
                 <CardDescription>Assessment of climate need and social inequality</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {getScoreBadge(region.climate_need_score, "Climate Need")}
-                {getScoreBadge(region.inequality_score, "Inequality")}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Climate Need</span>
+                  <Badge className={
+                    region.climate_need_score >= 0.7 
+                      ? "bg-destructive/10 text-destructive border-destructive/20" 
+                      : region.climate_need_score >= 0.4 
+                      ? "bg-warning/10 text-warning border-warning/20" 
+                      : "bg-success/10 text-success border-success/20"
+                  }>
+                    {region.climate_need_score >= 0.7 ? "High" : region.climate_need_score >= 0.4 ? "Medium" : "Low"} ({region.climate_need_score.toFixed(2)})
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Inequality</span>
+                  <Badge className={
+                    region.inequality_score >= 0.7 
+                      ? "bg-destructive/10 text-destructive border-destructive/20" 
+                      : region.inequality_score >= 0.4 
+                      ? "bg-warning/10 text-warning border-warning/20" 
+                      : "bg-success/10 text-success border-success/20"
+                  }>
+                    {region.inequality_score >= 0.7 ? "High" : region.inequality_score >= 0.4 ? "Medium" : "Low"} ({region.inequality_score.toFixed(2)})
+                  </Badge>
+                </div>
                 <div className="pt-4 border-t">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Overall Priority</span>
+                    <span className="text-sm font-medium">Priority Score</span>
                     <span className="text-2xl font-bold text-primary">
                       {region.priority_score.toFixed(2)}
                     </span>
@@ -190,40 +212,27 @@ const RegionDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Connectivity Card */}
-            <Card>
+            {/* Connectivity Info Box */}
+            <Card className="bg-muted/30">
               <CardHeader>
-                <CardTitle>Connectivity Metrics</CardTitle>
-                <CardDescription>Network performance indicators</CardDescription>
+                <CardTitle className="text-base">Network Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Wifi className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Download Speed</span>
-                  </div>
-                  <span className="font-semibold">{region.avg_download_mbps} Mbps</span>
+                  <span className="text-muted-foreground">Avg Download</span>
+                  <span className="font-medium">{region.avg_download_mbps} Mbps</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Wifi className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Upload Speed</span>
-                  </div>
-                  <span className="font-semibold">{region.avg_upload_mbps} Mbps</span>
+                  <span className="text-muted-foreground">Avg Upload</span>
+                  <span className="font-medium">{region.avg_upload_mbps} Mbps</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Network className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Latency</span>
-                  </div>
-                  <span className="font-semibold">{region.avg_latency_ms} ms</span>
+                  <span className="text-muted-foreground">Latency</span>
+                  <span className="font-medium">{region.avg_latency_ms} ms</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Network className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Network Type</span>
-                  </div>
-                  <Badge variant="outline">{region.network_type}</Badge>
+                  <span className="text-muted-foreground">Network Type</span>
+                  <Badge variant="outline" className="text-xs">{region.network_type}</Badge>
                 </div>
               </CardContent>
             </Card>

@@ -14,13 +14,426 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      country_scores: {
+        Row: {
+          climate_indicator: number
+          climate_need_score: number
+          country_name: string
+          created_at: string | null
+          id: string
+          inequality_indicator: number
+          inequality_score: number
+          internet_users_pct: number
+          iso_country: string
+          priority_score: number
+          recommended_microjob_category: string
+        }
+        Insert: {
+          climate_indicator: number
+          climate_need_score: number
+          country_name: string
+          created_at?: string | null
+          id?: string
+          inequality_indicator: number
+          inequality_score: number
+          internet_users_pct: number
+          iso_country: string
+          priority_score: number
+          recommended_microjob_category: string
+        }
+        Update: {
+          climate_indicator?: number
+          climate_need_score?: number
+          country_name?: string
+          created_at?: string | null
+          id?: string
+          inequality_indicator?: number
+          inequality_score?: number
+          internet_users_pct?: number
+          iso_country?: string
+          priority_score?: number
+          recommended_microjob_category?: string
+        }
+        Relationships: []
+      }
+      job_completions: {
+        Row: {
+          completed_at: string | null
+          earned_credits: number
+          estimated_co2_kg_impact: number
+          id: string
+          microjob_id: string
+          quiz_score_percent: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          earned_credits: number
+          estimated_co2_kg_impact: number
+          id?: string
+          microjob_id: string
+          quiz_score_percent: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          earned_credits?: number
+          estimated_co2_kg_impact?: number
+          id?: string
+          microjob_id?: string
+          quiz_score_percent?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_completions_microjob_id_fkey"
+            columns: ["microjob_id"]
+            isOneToOne: false
+            referencedRelation: "micro_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_progress: {
+        Row: {
+          created_at: string
+          id: string
+          last_updated: string
+          microjob_id: string
+          quiz_answers: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          microjob_id: string
+          quiz_answers?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          microjob_id?: string
+          quiz_answers?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      micro_jobs: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          difficulty_level: string
+          estimated_co2_kg_impact: number
+          estimated_duration_minutes: number
+          id: string
+          is_active: boolean | null
+          location: string
+          reward_credits: number
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          difficulty_level: string
+          estimated_co2_kg_impact: number
+          estimated_duration_minutes: number
+          id?: string
+          is_active?: boolean | null
+          location: string
+          reward_credits: number
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          difficulty_level?: string
+          estimated_co2_kg_impact?: number
+          estimated_duration_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          location?: string
+          reward_credits?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      quiz_questions: {
+        Row: {
+          correct_option: string
+          created_at: string | null
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          question_text: string
+          training_module_id: string
+        }
+        Insert: {
+          correct_option: string
+          created_at?: string | null
+          id?: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          question_text: string
+          training_module_id: string
+        }
+        Update: {
+          correct_option?: string
+          created_at?: string | null
+          id?: string
+          option_a?: string
+          option_b?: string
+          option_c?: string
+          option_d?: string
+          question_text?: string
+          training_module_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_training_module_id_fkey"
+            columns: ["training_module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_scores: {
+        Row: {
+          created_at: string
+          difficulty: string
+          id: string
+          percentage: number | null
+          score: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty: string
+          id?: string
+          percentage?: number | null
+          score: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          id?: string
+          percentage?: number | null
+          score?: number
+          topic?: string
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      regions: {
+        Row: {
+          avg_download_mbps: number
+          avg_latency_ms: number
+          avg_upload_mbps: number
+          climate_need_score: number
+          created_at: string | null
+          dominant_land_cover: string
+          id: string
+          inequality_score: number
+          iso_country: string
+          lat: number
+          lon: number
+          network_type: string
+          priority_score: number
+          recommended_microjob_category: string
+          region_id: number
+          region_name: string
+          source_connectivity_dataset: string
+          source_landcover_dataset: string
+        }
+        Insert: {
+          avg_download_mbps: number
+          avg_latency_ms: number
+          avg_upload_mbps: number
+          climate_need_score: number
+          created_at?: string | null
+          dominant_land_cover: string
+          id?: string
+          inequality_score: number
+          iso_country: string
+          lat: number
+          lon: number
+          network_type: string
+          priority_score: number
+          recommended_microjob_category: string
+          region_id: number
+          region_name: string
+          source_connectivity_dataset: string
+          source_landcover_dataset: string
+        }
+        Update: {
+          avg_download_mbps?: number
+          avg_latency_ms?: number
+          avg_upload_mbps?: number
+          climate_need_score?: number
+          created_at?: string | null
+          dominant_land_cover?: string
+          id?: string
+          inequality_score?: number
+          iso_country?: string
+          lat?: number
+          lon?: number
+          network_type?: string
+          priority_score?: number
+          recommended_microjob_category?: string
+          region_id?: number
+          region_name?: string
+          source_connectivity_dataset?: string
+          source_landcover_dataset?: string
+        }
+        Relationships: []
+      }
+      training_modules: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          learning_objectives: string[] | null
+          microjob_id: string
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          learning_objectives?: string[] | null
+          microjob_id: string
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          learning_objectives?: string[] | null
+          microjob_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_modules_microjob_id_fkey"
+            columns: ["microjob_id"]
+            isOneToOne: false
+            referencedRelation: "micro_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          id: string
+          location: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      verification_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          type: string
+          verified: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          type: string
+          verified?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          type?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      job_stats: {
+        Row: {
+          avg_score: number | null
+          total_co2_impact: number | null
+          total_credits: number | null
+          total_jobs: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_verification_codes: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

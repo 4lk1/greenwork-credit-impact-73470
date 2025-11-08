@@ -10,24 +10,17 @@ import { toast } from "sonner";
 import { ChatWidget } from "@/components/ChatWidget";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-interface Region {
+interface CountryScore {
   id: string;
-  region_id: number;
   iso_country: string;
-  region_name: string;
-  lat: number;
-  lon: number;
-  avg_download_mbps: number;
-  avg_upload_mbps: number;
-  avg_latency_ms: number;
-  network_type: string;
-  dominant_land_cover: string;
+  country_name: string;
+  climate_indicator: number;
+  inequality_indicator: number;
+  internet_users_pct: number;
   climate_need_score: number;
   inequality_score: number;
   priority_score: number;
   recommended_microjob_category: string;
-  source_connectivity_dataset: string;
-  source_landcover_dataset: string;
 }
 
 interface MicroJob {
@@ -43,45 +36,45 @@ const RegionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [region, setRegion] = useState<Region | null>(null);
+  const [country, setCountry] = useState<CountryScore | null>(null);
   const [matchingJobs, setMatchingJobs] = useState<MicroJob[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchRegionAndJobs();
+    fetchCountryAndJobs();
   }, [id]);
 
-  const fetchRegionAndJobs = async () => {
+  const fetchCountryAndJobs = async () => {
     try {
-      // Fetch region details
-      const { data: regionData, error: regionError } = await supabase
-        .from("regions")
+      // Fetch country details
+      const { data: countryData, error: countryError } = await supabase
+        .from("country_scores")
         .select("*")
         .eq("id", id)
         .maybeSingle();
 
-      if (regionError) throw regionError;
-      if (!regionData) {
-        toast.error("Region not found");
+      if (countryError) throw countryError;
+      if (!countryData) {
+        toast.error("Country not found");
         navigate("/regions");
         return;
       }
 
-      setRegion(regionData);
+      setCountry(countryData);
 
       // Fetch matching micro-jobs
       const { data: jobsData, error: jobsError } = await supabase
         .from("micro_jobs")
         .select("id, title, description, difficulty_level, reward_credits, estimated_co2_kg_impact")
-        .eq("category", regionData.recommended_microjob_category)
+        .eq("category", countryData.recommended_microjob_category)
         .eq("is_active", true)
         .limit(5);
 
       if (jobsError) throw jobsError;
       setMatchingJobs(jobsData || []);
     } catch (error) {
-      console.error("Error fetching region:", error);
-      toast.error("Failed to load region details");
+      console.error("Error fetching country:", error);
+      toast.error("Failed to load country details");
     } finally {
       setLoading(false);
     }
@@ -125,7 +118,7 @@ const RegionDetail = () => {
     );
   }
 
-  if (!region) {
+  if (!country) {
     return null;
   }
 
@@ -141,32 +134,29 @@ const RegionDetail = () => {
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("regionDetail.backToRegions")}
+            Back to Countries
           </Button>
 
           <div className="mb-8">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h1 className="text-4xl font-bold mb-2">{region.region_name}</h1>
+                <h1 className="text-4xl font-bold mb-2">{country.country_name}</h1>
                 <div className="flex items-center gap-4 text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    {region.iso_country}
-                  </div>
-                  <div>
-                    {t("regionDetail.coordinates")}: {region.lat.toFixed(2)}°N, {region.lon.toFixed(2)}°E
+                    {country.iso_country}
                   </div>
                 </div>
               </div>
               <Badge className="text-lg px-4 py-2">
-                {t("regionDetail.priority")}: {region.priority_score.toFixed(2)}
+                Priority: {country.priority_score.toFixed(2)}
               </Badge>
             </div>
 
             <Card className="bg-info/5 border-info/20">
               <CardContent className="pt-6">
                 <p className="text-sm leading-relaxed">
-                  <strong>{t("regionDetail.aboutPriority").split(':')[0]}:</strong> {t("regionDetail.aboutPriority").split(':')[1]}
+                  <strong>Priority Score:</strong> This score combines climate need and inequality to identify where micro-jobs can have the greatest impact.
                 </p>
               </CardContent>
             </Card>
@@ -183,95 +173,74 @@ const RegionDetail = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Climate Need</span>
                   <Badge className={
-                    region.climate_need_score >= 0.7 
+                    country.climate_need_score >= 0.7 
                       ? "bg-destructive/10 text-destructive border-destructive/20" 
-                      : region.climate_need_score >= 0.4 
+                      : country.climate_need_score >= 0.4 
                       ? "bg-warning/10 text-warning border-warning/20" 
                       : "bg-success/10 text-success border-success/20"
                   }>
-                    {region.climate_need_score >= 0.7 ? "High" : region.climate_need_score >= 0.4 ? "Medium" : "Low"} ({region.climate_need_score.toFixed(2)})
+                    {country.climate_need_score >= 0.7 ? "High" : country.climate_need_score >= 0.4 ? "Medium" : "Low"} ({country.climate_need_score.toFixed(2)})
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Inequality</span>
                   <Badge className={
-                    region.inequality_score >= 0.7 
+                    country.inequality_score >= 0.7 
                       ? "bg-destructive/10 text-destructive border-destructive/20" 
-                      : region.inequality_score >= 0.4 
+                      : country.inequality_score >= 0.4 
                       ? "bg-warning/10 text-warning border-warning/20" 
                       : "bg-success/10 text-success border-success/20"
                   }>
-                    {region.inequality_score >= 0.7 ? "High" : region.inequality_score >= 0.4 ? "Medium" : "Low"} ({region.inequality_score.toFixed(2)})
+                    {country.inequality_score >= 0.7 ? "High" : country.inequality_score >= 0.4 ? "Medium" : "Low"} ({country.inequality_score.toFixed(2)})
                   </Badge>
                 </div>
                 <div className="pt-4 border-t">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Priority Score</span>
                     <span className="text-2xl font-bold text-primary">
-                      {region.priority_score.toFixed(2)}
+                      {country.priority_score.toFixed(2)}
                     </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Connectivity Info Box */}
+            {/* Country Indicators */}
             <Card className="bg-muted/30">
               <CardHeader>
-                <CardTitle className="text-base">Network Information</CardTitle>
+                <CardTitle className="text-base">Country Indicators</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Avg Download</span>
-                  <span className="font-medium">{region.avg_download_mbps} Mbps</span>
+                  <span className="text-muted-foreground">Climate Indicator</span>
+                  <span className="font-medium">{country.climate_indicator.toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Avg Upload</span>
-                  <span className="font-medium">{region.avg_upload_mbps} Mbps</span>
+                  <span className="text-muted-foreground">Inequality Indicator</span>
+                  <span className="font-medium">{country.inequality_indicator.toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Latency</span>
-                  <span className="font-medium">{region.avg_latency_ms} ms</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Network Type</span>
-                  <Badge variant="outline" className="text-xs">{region.network_type}</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Land Cover Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Land Cover</CardTitle>
-                <CardDescription>Dominant landscape type</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3 mb-4">
-                  <Mountain className="h-8 w-8 text-earth" />
-                  <div>
-                    <p className="font-semibold text-lg capitalize">{region.dominant_land_cover}</p>
-                    <p className="text-sm text-muted-foreground">Primary land classification</p>
-                  </div>
+                  <span className="text-muted-foreground">Internet Users</span>
+                  <span className="font-medium">{country.internet_users_pct.toFixed(1)}%</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Recommended Category Card */}
-            <Card>
+            <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle>Recommended Micro-Jobs</CardTitle>
-                <CardDescription>Most impactful category for this region</CardDescription>
+                <CardDescription>Most impactful category for this country</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="mb-4">
                   <Badge variant="outline" className="text-lg px-4 py-2 border-primary/20 text-primary">
-                    {getCategoryLabel(region.recommended_microjob_category)}
+                    {getCategoryLabel(country.recommended_microjob_category)}
                   </Badge>
                 </div>
                 <Button 
                   className="w-full"
-                  onClick={() => navigate(`/jobs?category=${region.recommended_microjob_category}`)}
+                  onClick={() => navigate(`/jobs?category=${country.recommended_microjob_category}`)}
                 >
                   <Briefcase className="h-4 w-4 mr-2" />
                   View Recommended Micro-Jobs
@@ -283,19 +252,19 @@ const RegionDetail = () => {
           {/* Data Sources */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Data Sources</CardTitle>
+              <CardTitle>Data Sources & Methodology</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
-                <p className="font-medium mb-1">Connectivity Metrics</p>
+                <p className="font-medium mb-1">Climate Need Score</p>
                 <p className="text-muted-foreground">
-                  Derived from <strong>{region.source_connectivity_dataset}</strong>, providing real-world network performance data including download/upload speeds and latency measurements.
+                  Derived from temperature-change indicators in the climate change dataset. Higher scores indicate greater climate vulnerability and need for intervention.
                 </p>
               </div>
               <div>
-                <p className="font-medium mb-1">Land Cover Classification</p>
+                <p className="font-medium mb-1">Inequality Score</p>
                 <p className="text-muted-foreground">
-                  Derived from <strong>{region.source_landcover_dataset}</strong>, offering detailed 9-class land-cover analysis to understand regional landscape characteristics.
+                  Combines income inequality data from "Inequality in Income.csv" with internet usage statistics from "internet_usage.csv". This composite score identifies regions where digital access disparities compound economic inequality.
                 </p>
               </div>
             </CardContent>
@@ -305,9 +274,9 @@ const RegionDetail = () => {
           {matchingJobs.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Available {getCategoryLabel(region.recommended_microjob_category)} Micro-Jobs</CardTitle>
+                <CardTitle>Available {getCategoryLabel(country.recommended_microjob_category)} Micro-Jobs</CardTitle>
                 <CardDescription>
-                  Jobs in this category are recommended for maximum impact in this region
+                  Jobs in this category are recommended for maximum impact in this country
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -342,9 +311,9 @@ const RegionDetail = () => {
         </div>
       </div>
 
-      {region && (
+      {country && (
         <ChatWidget 
-          context={`page=region_detail; region_name=${region.region_name}; country=${region.iso_country}; climate_need_score=${region.climate_need_score}; inequality_score=${region.inequality_score}; priority_score=${region.priority_score}; recommended_category=${region.recommended_microjob_category}`}
+          context={`page=country_detail; country_name=${country.country_name}; country=${country.iso_country}; climate_need_score=${country.climate_need_score}; inequality_score=${country.inequality_score}; priority_score=${country.priority_score}; recommended_category=${country.recommended_microjob_category}`}
         />
       )}
     </div>

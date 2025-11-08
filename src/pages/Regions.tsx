@@ -10,11 +10,13 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChatWidget } from "@/components/ChatWidget";
 
-interface Region {
+interface CountryScore {
   id: string;
-  region_id: number;
   iso_country: string;
-  region_name: string;
+  country_name: string;
+  climate_indicator: number;
+  inequality_indicator: number;
+  internet_users_pct: number;
   climate_need_score: number;
   inequality_score: number;
   priority_score: number;
@@ -22,26 +24,85 @@ interface Region {
 }
 
 const Regions = () => {
-  const [regions, setRegions] = useState<Region[]>([]);
+  const [countries, setCountries] = useState<CountryScore[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { t } = useLanguage();
 
   useEffect(() => {
-    fetchRegions();
+    initializeData();
   }, []);
 
-  const fetchRegions = async () => {
+  const initializeData = async () => {
+    try {
+      // Check if data already exists
+      const { data: existing, error: checkError } = await supabase
+        .from("country_scores")
+        .select("id")
+        .limit(1);
+
+      if (checkError) throw checkError;
+
+      // If no data exists, seed from CSV
+      if (!existing || existing.length === 0) {
+        await seedFromCSV();
+      }
+
+      // Fetch all countries
+      await fetchCountries();
+    } catch (error) {
+      console.error("Error initializing data:", error);
+      toast.error(t("regions.loadError"));
+      setLoading(false);
+    }
+  };
+
+  const seedFromCSV = async () => {
+    try {
+      const response = await fetch("/data/europe_country_scores.csv");
+      const text = await response.text();
+      const lines = text.split("\n").slice(1); // Skip header
+      
+      const countries = lines
+        .filter(line => line.trim())
+        .map(line => {
+          const parts = line.split(",");
+          return {
+            iso_country: parts[0].trim(),
+            country_name: parts[1].trim(),
+            climate_indicator: parseFloat(parts[2]),
+            inequality_indicator: parseFloat(parts[3]),
+            internet_users_pct: parseFloat(parts[4]),
+            climate_need_score: parseFloat(parts[5]),
+            inequality_score: parseFloat(parts[6]),
+            priority_score: parseFloat(parts[7]),
+            recommended_microjob_category: parts[8].trim(),
+          };
+        });
+
+      const { error } = await supabase
+        .from("country_scores")
+        .insert(countries);
+
+      if (error) throw error;
+      toast.success("Country data loaded successfully");
+    } catch (error) {
+      console.error("Error seeding CSV:", error);
+      toast.error("Failed to load country data");
+    }
+  };
+
+  const fetchCountries = async () => {
     try {
       const { data, error } = await supabase
-        .from("regions")
-        .select("id, region_id, iso_country, region_name, climate_need_score, inequality_score, priority_score, recommended_microjob_category")
+        .from("country_scores")
+        .select("*")
         .order("priority_score", { ascending: false });
 
       if (error) throw error;
-      setRegions(data || []);
+      setCountries(data || []);
     } catch (error) {
-      console.error("Error fetching regions:", error);
+      console.error("Error fetching countries:", error);
       toast.error(t("regions.loadError"));
     } finally {
       setLoading(false);
@@ -100,23 +161,23 @@ const Regions = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {regions.map((region, index) => (
+                {countries.map((country, index) => (
                   <TableRow 
-                    key={region.id}
+                    key={country.id}
                     className="cursor-pointer hover:bg-muted/50 transition-smooth animate-fade-in"
                     style={{ animationDelay: `${index * 50}ms` }}
-                    onClick={() => navigate(`/regions/${region.id}`)}
+                    onClick={() => navigate(`/regions/${country.id}`)}
                   >
-                    <TableCell className="font-medium whitespace-nowrap">{region.region_name}</TableCell>
-                    <TableCell className="whitespace-nowrap">{region.iso_country}</TableCell>
-                    <TableCell>{getScoreBadge(region.climate_need_score)}</TableCell>
-                    <TableCell>{getScoreBadge(region.inequality_score)}</TableCell>
+                    <TableCell className="font-medium whitespace-nowrap">{country.country_name}</TableCell>
+                    <TableCell className="whitespace-nowrap">{country.iso_country}</TableCell>
+                    <TableCell>{getScoreBadge(country.climate_need_score)}</TableCell>
+                    <TableCell>{getScoreBadge(country.inequality_score)}</TableCell>
                     <TableCell className="whitespace-nowrap">
-                      <span className="font-semibold">{region.priority_score.toFixed(2)}</span>
+                      <span className="font-semibold">{country.priority_score.toFixed(2)}</span>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <Badge variant="outline" className="border-primary/20 text-primary">
-                        {getCategoryLabel(region.recommended_microjob_category)}
+                        {getCategoryLabel(country.recommended_microjob_category)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right whitespace-nowrap">
@@ -125,7 +186,7 @@ const Regions = () => {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/regions/${region.id}`);
+                          navigate(`/regions/${country.id}`);
                         }}
                       >
                         {t("regions.viewDetails")}
@@ -137,7 +198,7 @@ const Regions = () => {
             </Table>
           </div>
 
-          {regions.length === 0 && (
+          {countries.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">{t("regions.noData")}</p>
             </div>

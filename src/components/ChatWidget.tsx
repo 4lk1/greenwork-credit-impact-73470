@@ -26,7 +26,8 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isTopPosition, setIsTopPosition] = useState(true); // Toggle between top and bottom
+  const [isTopPosition, setIsTopPosition] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -91,20 +92,51 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
     }
   };
 
-  const togglePosition = () => {
-    setIsTopPosition(!isTopPosition);
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
   };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    // Determine if we should be at top or bottom based on cursor Y position
+    const windowHeight = window.innerHeight;
+    const cursorY = e.clientY;
+    
+    // If cursor is in top half, move to top, otherwise move to bottom
+    if (cursorY < windowHeight / 2) {
+      setIsTopPosition(true);
+    } else {
+      setIsTopPosition(false);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging]);
 
   return (
     <>
       {/* Chat Bubble Button */}
       {!isOpen && (
         <div 
-          className="fixed z-50 animate-fade-in"
+          className="fixed z-50 animate-fade-in cursor-move"
           style={{ 
             right: '1.5rem',
             ...(isTopPosition ? { top: '6rem' } : { bottom: '1.5rem' })
           }}
+          onMouseDown={handleMouseDown}
         >
           <Button
             onClick={() => setIsOpen(true)}
@@ -130,7 +162,8 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
           }}
         >
           <CardHeader 
-            className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0"
+            className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0 cursor-move"
+            onMouseDown={handleMouseDown}
           >
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
@@ -139,25 +172,14 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
                 </div>
                 GreenBot
               </CardTitle>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={togglePosition}
-                  className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
-                  title={isTopPosition ? "Move to bottom" : "Move to top"}
-                >
-                  <span className="text-xs">{isTopPosition ? "↓" : "↑"}</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsOpen(false)}
-                  className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
             <p className="text-xs text-primary-foreground/80 mt-1">
               Your GreenWorks assistant

@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StaggeredGrid } from "@/components/StaggeredGrid";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ChatWidget } from "@/components/ChatWidget";
 
 const Index = () => {
   const { user } = useAuth();
@@ -17,30 +16,30 @@ const Index = () => {
     {
       icon: Briefcase,
       title: t("home.feature1.title"),
-      description: t("home.feature1.desc")
+      description: t("home.feature1.desc"),
     },
     {
       icon: Award,
       title: t("home.feature2.title"),
-      description: t("home.feature2.desc")
+      description: t("home.feature2.desc"),
     },
     {
       icon: TrendingUp,
       title: t("home.feature3.title"),
-      description: t("home.feature3.desc")
-    }
+      description: t("home.feature3.desc"),
+    },
   ];
 
   const stats = [
     { icon: Users, value: "10+", label: t("home.stat1") },
     { icon: Globe, value: "10", label: t("home.stat2") },
-    { icon: Leaf, value: "450+", label: t("home.stat3") }
+    { icon: Leaf, value: "450+", label: t("home.stat3") },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 md:py-24 relative">
         <div className="absolute inset-0 gradient-hero opacity-50 -z-10" />
@@ -49,11 +48,11 @@ const Index = () => {
             <Leaf className="h-4 w-4" />
             {t("home.badge")}
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold leading-tight bg-gradient-to-br from-foreground via-primary to-earth bg-clip-text text-transparent animate-fade-in">
             {t("home.title")}
           </h1>
-          
+
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in">
             {t("home.subtitle")}
           </p>
@@ -61,12 +60,10 @@ const Index = () => {
           {!user && (
             <Alert className="max-w-2xl mx-auto bg-primary/5 border-primary/20">
               <UserPlus className="h-5 w-5 text-primary" />
-              <AlertDescription className="text-base">
-                {t("home.welcomeAlert")}
-              </AlertDescription>
+              <AlertDescription className="text-base">{t("home.welcomeAlert")}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in">
             <Button asChild size="lg" variant="premium" className="text-base">
               <Link to="/regions">
@@ -106,21 +103,22 @@ const Index = () => {
                     About GreenWorks
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    GreenWorks is an innovative platform that connects sustainability with action. 
-                    We empower individuals across Europe to contribute to environmental conservation 
-                    through accessible micro-jobs, while earning rewards and making a real impact on 
-                    our planet&apos;s future. Every task completed is a step toward a greener tomorrow.
+                    GreenWorks is an innovative platform that connects sustainability with action. We empower
+                    individuals across Europe to contribute to environmental conservation through accessible micro-jobs,
+                    while earning rewards and making a real impact on our planet&apos;s future. Every task completed is
+                    a step toward a greener tomorrow.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    Our mission is to democratize environmental action by breaking down large 
-                    sustainability goals into manageable, rewarding tasks that anyone can complete. 
-                    From tree planting initiatives to waste reduction campaigns, each micro-job 
-                    contributes to measurable CO₂ reduction and ecosystem restoration.
+                    Our mission is to democratize environmental action by breaking down large sustainability goals into
+                    manageable, rewarding tasks that anyone can complete. From tree planting initiatives to waste
+                    reduction campaigns, each micro-job contributes to measurable CO₂ reduction and ecosystem
+                    restoration.
                   </p>
                   <div className="flex items-center gap-2 pt-4 border-t border-border/50">
                     <Code2 className="h-5 w-5 text-primary" />
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      Crafted with <Heart className="h-4 w-4 text-destructive fill-destructive" /> by the <span className="font-semibold text-foreground">Codex Developer Team</span>
+                      Crafted with <Heart className="h-4 w-4 text-destructive fill-destructive" /> by the{" "}
+                      <span className="font-semibold text-foreground">Codex Developer Team</span>
                     </p>
                   </div>
                 </div>
@@ -137,13 +135,13 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
             {t("home.howItWorks")}
           </h2>
-          
-          <StaggeredGrid 
-            className="grid md:grid-cols-3 gap-8"
-            staggerDelay={150}
-          >
+
+          <StaggeredGrid className="grid md:grid-cols-3 gap-8" staggerDelay={150}>
             {featureCards.map((feature) => (
-              <Card key={feature.title} className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
+              <Card
+                key={feature.title}
+                className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group"
+              >
                 <CardContent className="pt-6 text-center space-y-4">
                   <div className="flex justify-center">
                     <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
@@ -151,9 +149,7 @@ const Index = () => {
                     </div>
                   </div>
                   <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-muted-foreground">
-                    {feature.description}
-                  </p>
+                  <p className="text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -164,15 +160,9 @@ const Index = () => {
       {/* Stats Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <StaggeredGrid 
-            className="grid grid-cols-2 md:grid-cols-3 gap-8 text-center"
-            staggerDelay={120}
-          >
+          <StaggeredGrid className="grid grid-cols-2 md:grid-cols-3 gap-8 text-center" staggerDelay={120}>
             {stats.map((stat, index) => (
-              <div 
-                key={stat.label} 
-                className={`group ${index === 2 ? 'col-span-2 md:col-span-1' : ''}`}
-              >
+              <div key={stat.label} className={`group ${index === 2 ? "col-span-2 md:col-span-1" : ""}`}>
                 <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
                   <stat.icon className="h-8 w-8 text-primary-foreground" />
                 </div>
@@ -194,10 +184,7 @@ const Index = () => {
               {t("home.ctaTitle")}
             </h2>
             <p className="text-lg text-muted-foreground">
-              {user 
-                ? t("home.ctaDescLoggedIn")
-                : t("home.ctaDescLoggedOut")
-              }
+              {user ? t("home.ctaDescLoggedIn") : t("home.ctaDescLoggedOut")}
             </p>
             {user ? (
               <Button asChild size="lg" variant="premium">
@@ -235,12 +222,12 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <Code2 className="h-4 w-4 text-primary" />
-            <span>Developed by <span className="font-semibold text-foreground">Codex Developer Team</span></span>
+            <span>
+              Developed by <span className="font-semibold text-foreground">Codex</span>
+            </span>
           </div>
         </div>
       </footer>
-
-      <ChatWidget context="page=home; user is viewing the GreenWorks CodeX homepage with overview of features, statistics, and calls to action" />
     </div>
   );
 };

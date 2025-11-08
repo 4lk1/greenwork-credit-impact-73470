@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -114,10 +115,10 @@ export const Navigation = () => {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <a href="/profile" className="cursor-pointer">
+                    <Link to="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
-                    </a>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut()}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -127,10 +128,10 @@ export const Navigation = () => {
               </DropdownMenu>
             ) : (
               <Button variant="premium" size="sm" asChild>
-                <a href="/auth">
+                <Link to="/auth">
                   <User className="mr-2 h-4 w-4" />
                   Login
-                </a>
+                </Link>
               </Button>
             )}
           </div>
@@ -185,10 +186,10 @@ export const Navigation = () => {
             ) : (
               <div className="px-4 py-3">
                 <Button variant="default" size="sm" className="w-full" asChild>
-                  <a href="/auth">
+                  <Link to="/auth">
                     <User className="mr-2 h-4 w-4" />
                     Login
-                  </a>
+                  </Link>
                 </Button>
               </div>
             )}

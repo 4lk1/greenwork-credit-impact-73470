@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,8 @@ export const Navigation = () => {
                 </NavLink>
               ))}
             </div>
+            
+            <ThemeToggle />
             
             {user ? (
               <DropdownMenu>

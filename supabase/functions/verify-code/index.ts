@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,11 +8,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface VerifyCodeRequest {
-  email: string;
-  code: string;
-  type: "signup" | "login";
-}
+const requestSchema = z.object({
+  email: z.string().email().max(255),
+  code: z.string().regex(/^\d{6}$/, "Code must be exactly 6 digits"),
+  type: z.enum(["signup", "login"]),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -19,8 +20,25 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, code, type }: VerifyCodeRequest = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validation = requestSchema.safeParse(body);
+    if (!validation.success) {
+      console.log("Validation failed:", validation.error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid request data",
+          details: validation.error.issues.map(i => i.message)
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
+    const { email, code, type } = validation.data;
     console.log(`Verifying ${type} code for:`, email);
 
     // Initialize Supabase client

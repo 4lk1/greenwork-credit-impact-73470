@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Leaf, Briefcase, TrendingUp, Menu, X } from "lucide-react";
+import { Leaf, Briefcase, TrendingUp, Globe, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -9,6 +9,7 @@ export const Navigation = () => {
   const navItems = [
     { to: "/", label: "Home", icon: Leaf },
     { to: "/jobs", label: "Micro-Jobs", icon: Briefcase },
+    { to: "/regions", label: "Regions", icon: Globe },
     { to: "/impact", label: "Impact", icon: TrendingUp },
   ];
 

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Loader2, MapPin, Clock, Award, Leaf } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,6 +22,7 @@ interface MicroJob {
 }
 
 const Jobs = () => {
+  const [searchParams] = useSearchParams();
   const [jobs, setJobs] = useState<MicroJob[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<MicroJob[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +32,14 @@ const Jobs = () => {
   useEffect(() => {
     fetchJobs();
   }, []);
+
+  useEffect(() => {
+    // Read category from URL params if present
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      setCategoryFilter(categoryParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     applyFilters();

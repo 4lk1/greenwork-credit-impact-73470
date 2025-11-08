@@ -41,6 +41,12 @@ const Index = () => {
                 View Impact Dashboard
               </Link>
             </Button>
+            <Button asChild size="lg" variant="secondary" className="text-base">
+              <Link to="/regions">
+                <Globe className="mr-2 h-5 w-5" />
+                Explore European Regions
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

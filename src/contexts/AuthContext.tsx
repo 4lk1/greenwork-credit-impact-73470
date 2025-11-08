@@ -9,6 +9,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, username: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  sendVerificationCode: (email: string, type: "signup" | "login") => Promise<{ error: any }>;
+  verifyCode: (email: string, code: string, type: "signup" | "login") => Promise<{ verified: boolean; error: any }>;
   loading: boolean;
 }
 
@@ -79,8 +81,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     navigate("/auth");
   };
 
+  const sendVerificationCode = async (email: string, type: "signup" | "login") => {
+    try {
+      const { error } = await supabase.functions.invoke("send-verification-code", {
+        body: { email, type },
+      });
+      return { error };
+    } catch (error: any) {
+      return { error };
+    }
+  };
+
+  const verifyCode = async (email: string, code: string, type: "signup" | "login") => {
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-code", {
+        body: { email, code, type },
+      });
+      
+      if (error) {
+        return { verified: false, error };
+      }
+      
+      return { verified: data?.verified || false, error: null };
+    } catch (error: any) {
+      return { verified: false, error };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, sendVerificationCode, verifyCode, loading }}>
       {children}
     </AuthContext.Provider>
   );

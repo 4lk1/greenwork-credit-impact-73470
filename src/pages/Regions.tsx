@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { StaggeredList } from "@/components/StaggeredGrid";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Region {
   id: string;
@@ -24,6 +25,7 @@ const Regions = () => {
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchRegions();
@@ -40,7 +42,7 @@ const Regions = () => {
       setRegions(data || []);
     } catch (error) {
       console.error("Error fetching regions:", error);
-      toast.error("Failed to load regions");
+      toast.error(t("regions.loadError"));
     } finally {
       setLoading(false);
     }
@@ -52,11 +54,11 @@ const Regions = () => {
 
   const getScoreBadge = (score: number) => {
     if (score >= 0.7) {
-      return <Badge className="bg-destructive/10 text-destructive border-destructive/20">High</Badge>;
+      return <Badge className="bg-destructive/10 text-destructive border-destructive/20">{t("regions.high")}</Badge>;
     } else if (score >= 0.4) {
-      return <Badge className="bg-warning/10 text-warning border-warning/20">Medium</Badge>;
+      return <Badge className="bg-warning/10 text-warning border-warning/20">{t("regions.medium")}</Badge>;
     } else {
-      return <Badge className="bg-success/10 text-success border-success/20">Low</Badge>;
+      return <Badge className="bg-success/10 text-success border-success/20">{t("regions.low")}</Badge>;
     }
   };
 
@@ -78,9 +80,9 @@ const Regions = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">European Priority Regions</h1>
+            <h1 className="text-4xl font-bold mb-2">{t("regions.title")}</h1>
             <p className="text-lg text-muted-foreground">
-              Regions ranked by climate need and inequality scores to maximize micro-job impact
+              {t("regions.subtitle")}
             </p>
           </div>
 
@@ -88,13 +90,13 @@ const Regions = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Region Name</TableHead>
-                  <TableHead>Country</TableHead>
-                  <TableHead>Climate Need</TableHead>
-                  <TableHead>Inequality</TableHead>
-                  <TableHead>Priority Score</TableHead>
-                  <TableHead>Recommended Category</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t("regions.regionName")}</TableHead>
+                  <TableHead>{t("regions.country")}</TableHead>
+                  <TableHead>{t("regions.climateNeed")}</TableHead>
+                  <TableHead>{t("regions.inequality")}</TableHead>
+                  <TableHead>{t("regions.priorityScore")}</TableHead>
+                  <TableHead>{t("regions.recommendedCategory")}</TableHead>
+                  <TableHead className="text-right">{t("regions.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -126,7 +128,7 @@ const Regions = () => {
                             navigate(`/regions/${region.id}`);
                           }}
                         >
-                          View Details
+                          {t("regions.viewDetails")}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -139,7 +141,7 @@ const Regions = () => {
 
           {regions.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No regions data available.</p>
+              <p className="text-muted-foreground">{t("regions.noData")}</p>
             </div>
           )}
         </div>

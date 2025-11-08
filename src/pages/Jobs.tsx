@@ -9,6 +9,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Loader2, MapPin, Clock, Award, Leaf } from "lucide-react";
 import { toast } from "sonner";
 import { StaggeredGrid } from "@/components/StaggeredGrid";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MicroJob {
   id: string;
@@ -29,6 +30,7 @@ const Jobs = () => {
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
+  const { t } = useLanguage();
 
   // Set category filter from URL on mount
   useEffect(() => {
@@ -58,7 +60,7 @@ const Jobs = () => {
       setJobs(data || []);
     } catch (error) {
       console.error("Error fetching jobs:", error);
-      toast.error("Failed to load jobs");
+      toast.error(t("jobs.loadError") || "Failed to load jobs");
     } finally {
       setLoading(false);
     }
@@ -109,9 +111,9 @@ const Jobs = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">Climate Micro-Jobs</h1>
+            <h1 className="text-4xl font-bold mb-2">{t("jobs.title")}</h1>
             <p className="text-lg text-muted-foreground">
-              Discover opportunities to build climate resilience and earn rewards
+              {t("jobs.subtitle")}
             </p>
           </div>
 
@@ -122,12 +124,12 @@ const Jobs = () => {
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="tree_planting">Tree Planting</SelectItem>
-                <SelectItem value="solar_maintenance">Solar Maintenance</SelectItem>
-                <SelectItem value="water_harvesting">Water Harvesting</SelectItem>
-                <SelectItem value="agroforestry">Agroforestry</SelectItem>
-                <SelectItem value="home_insulation">Home Insulation</SelectItem>
+                <SelectItem value="all">{t("jobs.allCategories")}</SelectItem>
+                <SelectItem value="tree_planting">{t("jobs.treePlanting")}</SelectItem>
+                <SelectItem value="solar_maintenance">{t("jobs.solarMaintenance")}</SelectItem>
+                <SelectItem value="water_harvesting">{t("jobs.waterHarvesting")}</SelectItem>
+                <SelectItem value="agroforestry">{t("jobs.agroforestry")}</SelectItem>
+                <SelectItem value="home_insulation">{t("jobs.homeInsulation")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -136,17 +138,17 @@ const Jobs = () => {
                 <SelectValue placeholder="Difficulty" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="beginner">Beginner</SelectItem>
-                <SelectItem value="intermediate">Intermediate</SelectItem>
-                <SelectItem value="advanced">Advanced</SelectItem>
+                <SelectItem value="all">{t("jobs.allLevels")}</SelectItem>
+                <SelectItem value="beginner">{t("jobs.beginner")}</SelectItem>
+                <SelectItem value="intermediate">{t("jobs.intermediate")}</SelectItem>
+                <SelectItem value="advanced">{t("jobs.advanced")}</SelectItem>
               </SelectContent>
             </Select>
 
             <div className="flex-1" />
 
             <div className="text-sm text-muted-foreground flex items-center">
-              Showing {filteredJobs.length} of {jobs.length} jobs
+              {t("jobs.showing")} {filteredJobs.length} {t("jobs.of")} {jobs.length} {t("jobs.jobsText")}
             </div>
           </div>
 
@@ -178,19 +180,19 @@ const Jobs = () => {
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Clock className="h-4 w-4" />
-                        Time: {job.estimated_duration_minutes} minutes
+                        {t("jobs.time")}: {job.estimated_duration_minutes} {t("jobs.minutes")}
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Award className="h-4 w-4 text-warning" />
-                        {job.reward_credits} credits
+                        {job.reward_credits} {t("jobs.credits")}
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Leaf className="h-4 w-4 text-success" />
-                        Climate impact: {job.estimated_co2_kg_impact} kg CO₂
+                        {t("jobs.climateImpact")}: {job.estimated_co2_kg_impact} kg CO₂
                       </div>
                     </div>
                     <Button asChild className="w-full">
-                      <Link to={`/jobs/${job.id}`}>View Details & Training</Link>
+                      <Link to={`/jobs/${job.id}`}>{t("jobs.viewDetails")}</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -198,7 +200,7 @@ const Jobs = () => {
             </StaggeredGrid>
           ) : (
             <div className="text-center py-12 animate-fade-in">
-              <p className="text-muted-foreground">No jobs match your filters. Try adjusting them.</p>
+              <p className="text-muted-foreground">{t("jobs.noMatch")}</p>
             </div>
           )}
         </div>

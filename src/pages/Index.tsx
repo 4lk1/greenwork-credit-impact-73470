@@ -6,32 +6,34 @@ import { Briefcase, TrendingUp, Leaf, Award, Users, Globe, UserPlus } from "luci
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StaggeredGrid } from "@/components/StaggeredGrid";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const featureCards = [
     {
       icon: Briefcase,
-      title: "Discover Micro-Jobs",
-      description: "Browse climate-resilience opportunities across Europe—from tree planting to solar maintenance, tailored to your location and skill level."
+      title: t("home.feature1.title"),
+      description: t("home.feature1.desc")
     },
     {
       icon: Award,
-      title: "Learn & Earn",
-      description: "Complete micro-learning modules with interactive quizzes. Pass the quiz to unlock job completion and earn credits."
+      title: t("home.feature2.title"),
+      description: t("home.feature2.desc")
     },
     {
       icon: TrendingUp,
-      title: "Track Your Impact",
-      description: "Monitor your earned credits and estimated CO₂ offset on your personal impact dashboard. See your contribution grow."
+      title: t("home.feature3.title"),
+      description: t("home.feature3.desc")
     }
   ];
 
   const stats = [
-    { icon: Users, value: "10+", label: "Micro-Jobs Available" },
-    { icon: Globe, value: "10", label: "European Locations" },
-    { icon: Leaf, value: "450+", label: "kg CO₂ Impact Potential" }
+    { icon: Users, value: "10+", label: t("home.stat1") },
+    { icon: Globe, value: "10", label: t("home.stat2") },
+    { icon: Leaf, value: "450+", label: t("home.stat3") }
   ];
 
   return (
@@ -44,22 +46,22 @@ const Index = () => {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-medium shadow-soft hover:shadow-medium transition-smooth animate-fade-in">
             <Leaf className="h-4 w-4" />
-            Climate Action Meets Economic Opportunity
+            {t("home.badge")}
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold leading-tight bg-gradient-to-br from-foreground via-primary to-earth bg-clip-text text-transparent animate-fade-in">
-            GreenWorks CodeX
+            {t("home.title")}
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in">
-            Climate-resilience micro-jobs and learning for vulnerable communities in Europe.
+            {t("home.subtitle")}
           </p>
 
           {!user && (
             <Alert className="max-w-2xl mx-auto bg-primary/5 border-primary/20">
               <UserPlus className="h-5 w-5 text-primary" />
               <AlertDescription className="text-base">
-                <strong>Welcome!</strong> Sign up or log in to start earning credits and making a climate impact.
+                {t("home.welcomeAlert")}
               </AlertDescription>
             </Alert>
           )}
@@ -68,19 +70,19 @@ const Index = () => {
             <Button asChild size="lg" variant="premium" className="text-base">
               <Link to="/regions">
                 <Globe className="mr-2 h-5 w-5" />
-                Explore European Regions
+                {t("home.exploreRegions")}
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="text-base">
               <Link to="/jobs">
                 <Briefcase className="mr-2 h-5 w-5" />
-                Browse Micro-Jobs
+                {t("home.browseMicroJobs")}
               </Link>
             </Button>
             <Button asChild size="lg" variant="secondary" className="text-base">
               <Link to="/impact">
                 <TrendingUp className="mr-2 h-5 w-5" />
-                View Impact
+                {t("home.viewImpact")}
               </Link>
             </Button>
           </div>
@@ -92,7 +94,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-muted/30 to-transparent -z-10" />
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-            How GreenWorks CodeX Works
+            {t("home.howItWorks")}
           </h2>
           
           <StaggeredGrid 
@@ -148,19 +150,19 @@ const Index = () => {
         <div className="gradient-hero rounded-3xl p-12 shadow-large border border-primary/20 backdrop-blur-glass">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground via-primary to-earth bg-clip-text text-transparent">
-              Ready to Make an Impact?
+              {t("home.ctaTitle")}
             </h2>
             <p className="text-lg text-muted-foreground">
               {user 
-                ? "Continue your journey towards a more sustainable future while earning economic rewards."
-                : "Join GreenWorks CodeX today and start your journey towards a more sustainable future while earning economic rewards."
+                ? t("home.ctaDescLoggedIn")
+                : t("home.ctaDescLoggedOut")
               }
             </p>
             {user ? (
               <Button asChild size="lg" variant="premium">
                 <Link to="/jobs">
                   <Briefcase className="mr-2 h-5 w-5" />
-                  Browse Available Jobs
+                  {t("home.browseAvailableJobs")}
                 </Link>
               </Button>
             ) : (
@@ -168,13 +170,13 @@ const Index = () => {
                 <Button asChild size="lg" variant="premium">
                   <Link to="/auth">
                     <UserPlus className="mr-2 h-5 w-5" />
-                    Sign Up Free
+                    {t("auth.signUpFree")}
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
                   <Link to="/regions">
                     <Globe className="mr-2 h-5 w-5" />
-                    Explore Regions
+                    {t("home.exploreRegionsBtn")}
                   </Link>
                 </Button>
               </div>

@@ -100,9 +100,13 @@ export const Navigation = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:shadow-glow transition-smooth">
-                    <Avatar className="h-9 w-9 ring-2 ring-primary/20 transition-smooth hover:ring-primary/50">
-                      <AvatarImage src={avatarUrl || undefined} alt={username || user?.email} />
-                      <AvatarFallback className="bg-gradient-primary text-primary-foreground">
+                  <Avatar className="h-9 w-9 ring-2 ring-primary/20 transition-smooth hover:ring-primary/50">
+                    <AvatarImage 
+                      src={avatarUrl || undefined} 
+                      alt={username || user?.email}
+                      loading="lazy"
+                    />
+                    <AvatarFallback className="bg-gradient-primary text-primary-foreground">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>

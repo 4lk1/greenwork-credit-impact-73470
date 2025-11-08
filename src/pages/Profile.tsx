@@ -276,7 +276,10 @@ const Profile = () => {
                 {/* Avatar Preview and Upload */}
                 <div className="flex items-center gap-4">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src={avatarUrl || undefined} alt={username} />
+                    <AvatarImage 
+                      src={avatarUrl || undefined} 
+                      alt={username}
+                    />
                     <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                       {getUserInitials()}
                     </AvatarFallback>

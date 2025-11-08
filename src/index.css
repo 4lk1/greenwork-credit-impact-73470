@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Performance Optimizations */
+* {
+  box-sizing: border-box;
+}
+
+/* Improve font rendering performance */
+body {
+  font-display: swap;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Optimize images for better CLS */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
@@ -239,4 +259,18 @@ All colors MUST be HSL.
   .stagger-7 { animation-delay: 0.7s; }
   .stagger-8 { animation-delay: 0.8s; }
   .stagger-9 { animation-delay: 0.9s; }
+  
+  /* Performance optimizations for animations */
+  .animate-fade-in,
+  .animate-scale-in,
+  .stagger-item,
+  .stagger-item-slide {
+    will-change: transform, opacity;
+  }
+  
+  /* Force GPU acceleration for smooth animations */
+  .transition-smooth {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
 }

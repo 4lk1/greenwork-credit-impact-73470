@@ -1,0 +1,17 @@
+{
+  "name": "GreenWorks - Sustainability Micro-Jobs Platform",
+  "short_name": "GreenWorks",
+  "description": "Earn rewards while saving the planet through sustainability micro-jobs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

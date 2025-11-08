@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIntro } from "@/contexts/IntroContext";
 import { Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { t } = useLanguage();
+  const { showIntro } = useIntro();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
 
@@ -67,7 +69,10 @@ export const Navigation = () => {
     <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-glass shadow-soft supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <NavLink to="/" className="flex items-center gap-2 group">
+          <div 
+            onClick={showIntro}
+            className="flex items-center gap-2 group cursor-pointer"
+          >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary shadow-medium group-hover:shadow-glow transition-smooth">
               <Leaf className="h-6 w-6 text-primary-foreground transition-smooth group-hover:scale-110 group-hover:rotate-12" />
             </div>
@@ -77,7 +82,7 @@ export const Navigation = () => {
               </h1>
               <p className="text-xs text-muted-foreground">CodeX</p>
             </div>
-          </NavLink>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-4">

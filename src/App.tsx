@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { IntroProvider } from "@/contexts/IntroContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageTransition } from "@/components/PageTransition";
 import { PageLoadingSkeleton } from "@/components/LoadingSkeleton";
@@ -54,6 +55,11 @@ const App = memo(() => {
     setHasShownIntro(true);
   };
 
+  const handleShowIntro = () => {
+    setShowIntro(true);
+    setHasShownIntro(false);
+  };
+
   if (showIntro && !hasShownIntro) {
     return <IntroScreen onComplete={handleIntroComplete} />;
   }
@@ -62,22 +68,23 @@ const App = memo(() => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AuthProvider>
+          <IntroProvider onShowIntro={handleShowIntro}>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AuthProvider>
               <Suspense fallback={<PageLoadingSkeleton />}>
                 <Routes>
                 <Route path="/" element={<PageTransition><Index /></PageTransition>} />
                 <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
                 <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
-                <Route path="/impact" element={<PageTransition><Impact /></PageTransition>} />
+                <Route path="/impact" element={<ProtectedRoute><PageTransition><Impact /></PageTransition></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
                 <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
                 <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
-                <Route path="/quiz" element={<PageTransition><QuizChat /></PageTransition>} />
-                <Route path="/leaderboard" element={<PageTransition><Leaderboard /></PageTransition>} />
+                <Route path="/quiz" element={<ProtectedRoute><PageTransition><QuizChat /></PageTransition></ProtectedRoute>} />
+                <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
                 <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
@@ -86,6 +93,7 @@ const App = memo(() => {
               </AuthProvider>
             </BrowserRouter>
           </TooltipProvider>
+          </IntroProvider>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>

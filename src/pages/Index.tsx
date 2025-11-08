@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StaggeredGrid } from "@/components/StaggeredGrid";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ChatWidget } from "@/components/ChatWidget";
 
 const Index = () => {
   const { user } = useAuth();
@@ -238,6 +239,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <ChatWidget context="page=home; user is viewing the GreenWorks CodeX homepage with overview of features, statistics, and calls to action" />
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Award, Leaf, CheckCircle2, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-
+import { ChatWidget } from "@/components/ChatWidget";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface JobCompletion {
@@ -302,6 +302,8 @@ const Impact = () => {
           )}
         </div>
       </div>
+
+      <ChatWidget context={`page=impact; user is viewing their personal impact dashboard with ${stats.totalJobs} completed jobs, ${stats.totalCredits} credits earned, ${stats.totalCO2.toFixed(2)} kg CO2 impact`} />
     </div>
   );
 };

@@ -10,6 +10,7 @@ import { Loader2, MapPin, Clock, Award, Leaf } from "lucide-react";
 import { toast } from "sonner";
 import { StaggeredGrid } from "@/components/StaggeredGrid";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ChatWidget } from "@/components/ChatWidget";
 
 interface MicroJob {
   id: string;
@@ -205,6 +206,8 @@ const Jobs = () => {
           )}
         </div>
       </div>
+
+      <ChatWidget context="page=jobs; user is browsing micro-jobs with categories like tree_planting, water_harvesting, solar_maintenance, agroforestry, home_insulation" />
     </div>
   );
 };

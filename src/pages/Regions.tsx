@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ChatWidget } from "@/components/ChatWidget";
 
 interface Region {
   id: string;
@@ -143,6 +144,8 @@ const Regions = () => {
           )}
         </div>
       </div>
+
+      <ChatWidget context="page=regions; user is browsing the regions list with climate need scores, inequality scores, and priority scores for European regions" />
     </div>
   );
 };

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, MapPin, Clock, Award, Leaf, CheckCircle2, AlertCircle, Save, LogIn } from "lucide-react";
 import { toast } from "sonner";
-
+import { ChatWidget } from "@/components/ChatWidget";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MicroJob {
@@ -501,6 +501,12 @@ const JobDetail = () => {
           </Card>
         </div>
       </div>
+
+      {job && (
+        <ChatWidget 
+          context={`page=job_detail; job_title=${job.title}; category=${job.category}; difficulty=${job.difficulty_level}; duration=${job.estimated_duration_minutes} minutes; co2_impact=${job.estimated_co2_kg_impact} kg; reward=${job.reward_credits} credits`}
+        />
+      )}
     </div>
   );
 };

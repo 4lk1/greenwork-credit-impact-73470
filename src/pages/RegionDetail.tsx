@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Wifi, Network, Mountain, ArrowLeft, Briefcase } from "lucide-react";
 import { toast } from "sonner";
-
+import { ChatWidget } from "@/components/ChatWidget";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Region {
@@ -341,6 +341,12 @@ const RegionDetail = () => {
           )}
         </div>
       </div>
+
+      {region && (
+        <ChatWidget 
+          context={`page=region_detail; region_name=${region.region_name}; country=${region.iso_country}; climate_need_score=${region.climate_need_score}; inequality_score=${region.inequality_score}; priority_score=${region.priority_score}; recommended_category=${region.recommended_microjob_category}`}
+        />
+      )}
     </div>
   );
 };

@@ -347,7 +347,15 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      job_stats: {
+        Row: {
+          avg_score: number | null
+          total_co2_impact: number | null
+          total_credits: number | null
+          total_jobs: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_expired_verification_codes: { Args: never; Returns: undefined }

@@ -43,13 +43,39 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, type } = validation.data;
     console.log(`Sending ${type} verification code to:`, email);
 
-    // Generate 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Rate limiting: Check recent requests (max 3 per 5 minutes per email)
+    const fiveMinutesAgo = new Date();
+    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+    
+    const { data: recentCodes, error: rateLimitError } = await supabase
+      .from("verification_codes")
+      .select("id")
+      .eq("email", email)
+      .eq("type", type)
+      .gte("created_at", fiveMinutesAgo.toISOString());
+
+    if (rateLimitError) {
+      console.error("Error checking rate limit:", rateLimitError);
+    } else if (recentCodes && recentCodes.length >= 3) {
+      console.log(`Rate limit exceeded for ${email}`);
+      return new Response(
+        JSON.stringify({ 
+          error: "Too many requests. Please wait a few minutes before requesting another code." 
+        }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Delete any existing unverified codes for this email and type
     await supabase

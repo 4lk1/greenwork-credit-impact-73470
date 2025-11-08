@@ -41,6 +41,16 @@ const Impact = () => {
 
   const fetchCompletions = async () => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error("No user found");
+        setLoading(false);
+        return;
+      }
+
+      // Fetch only the current user's completions
       const { data, error } = await supabase
         .from("job_completions")
         .select(`
@@ -50,6 +60,7 @@ const Impact = () => {
             category
           )
         `)
+        .eq("user_id", user.id)
         .order("completed_at", { ascending: false });
 
       if (error) throw error;

@@ -46,6 +46,35 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Rate limiting: Count failed attempts in the last 15 minutes
+    const fifteenMinutesAgo = new Date();
+    fifteenMinutesAgo.setMinutes(fifteenMinutesAgo.getMinutes() - 15);
+    
+    const { data: recentAttempts, error: rateLimitError } = await supabase
+      .from("verification_codes")
+      .select("id, verified")
+      .eq("email", email)
+      .eq("type", type)
+      .gte("created_at", fifteenMinutesAgo.toISOString());
+
+    if (!rateLimitError && recentAttempts) {
+      // Count codes that were created but not verified (failed attempts)
+      const failedAttempts = recentAttempts.filter(a => !a.verified).length;
+      
+      if (failedAttempts >= 5) {
+        console.log(`Too many failed attempts for ${email}`);
+        return new Response(
+          JSON.stringify({ 
+            error: "Too many failed attempts. Please wait 15 minutes or request a new code." 
+          }),
+          {
+            status: 429,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+    }
+
     // Find the verification code
     const { data: verificationData, error: selectError } = await supabase
       .from("verification_codes")

@@ -145,6 +145,69 @@ export type Database = {
           },
         ]
       }
+      regions: {
+        Row: {
+          avg_download_mbps: number
+          avg_latency_ms: number
+          avg_upload_mbps: number
+          climate_need_score: number
+          created_at: string | null
+          dominant_land_cover: string
+          id: string
+          inequality_score: number
+          iso_country: string
+          lat: number
+          lon: number
+          network_type: string
+          priority_score: number
+          recommended_microjob_category: string
+          region_id: number
+          region_name: string
+          source_connectivity_dataset: string
+          source_landcover_dataset: string
+        }
+        Insert: {
+          avg_download_mbps: number
+          avg_latency_ms: number
+          avg_upload_mbps: number
+          climate_need_score: number
+          created_at?: string | null
+          dominant_land_cover: string
+          id?: string
+          inequality_score: number
+          iso_country: string
+          lat: number
+          lon: number
+          network_type: string
+          priority_score: number
+          recommended_microjob_category: string
+          region_id: number
+          region_name: string
+          source_connectivity_dataset: string
+          source_landcover_dataset: string
+        }
+        Update: {
+          avg_download_mbps?: number
+          avg_latency_ms?: number
+          avg_upload_mbps?: number
+          climate_need_score?: number
+          created_at?: string | null
+          dominant_land_cover?: string
+          id?: string
+          inequality_score?: number
+          iso_country?: string
+          lat?: number
+          lon?: number
+          network_type?: string
+          priority_score?: number
+          recommended_microjob_category?: string
+          region_id?: number
+          region_name?: string
+          source_connectivity_dataset?: string
+          source_landcover_dataset?: string
+        }
+        Relationships: []
+      }
       training_modules: {
         Row: {
           content: string

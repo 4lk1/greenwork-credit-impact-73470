@@ -16,9 +16,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Optimize bundle size
+    // Optimize bundle size with esbuild (default, faster than terser)
     target: 'esnext',
-    minify: 'terser',
+    minify: 'esbuild',
     // Improve chunk splitting
     rollupOptions: {
       output: {

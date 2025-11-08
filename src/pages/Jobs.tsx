@@ -29,17 +29,17 @@ const Jobs = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
 
+  // Set category filter from URL on mount
   useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  useEffect(() => {
-    // Read category from URL params if present
     const categoryParam = searchParams.get("category");
     if (categoryParam) {
       setCategoryFilter(categoryParam);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
   useEffect(() => {
     applyFilters();

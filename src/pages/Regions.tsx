@@ -1,12 +1,12 @@
 import { Navigation } from "@/components/Navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Region {
   id: string;
@@ -20,9 +20,9 @@ interface Region {
 }
 
 const Regions = () => {
-  const navigate = useNavigate();
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchRegions();
@@ -50,12 +50,12 @@ const Regions = () => {
   };
 
   const getScoreBadge = (score: number) => {
-    if (score < 0.4) {
-      return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Low</Badge>;
-    } else if (score < 0.7) {
-      return <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">Medium</Badge>;
+    if (score >= 0.7) {
+      return <Badge className="bg-destructive/10 text-destructive border-destructive/20">High</Badge>;
+    } else if (score >= 0.4) {
+      return <Badge className="bg-warning/10 text-warning border-warning/20">Medium</Badge>;
     } else {
-      return <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">High</Badge>;
+      return <Badge className="bg-success/10 text-success border-success/20">Low</Badge>;
     }
   };
 
@@ -77,13 +77,13 @@ const Regions = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">European Regions</h1>
+            <h1 className="text-4xl font-bold mb-2">European Priority Regions</h1>
             <p className="text-lg text-muted-foreground">
-              Explore priority regions for climate-resilience micro-jobs across Europe
+              Regions ranked by climate need and inequality scores to maximize micro-job impact
             </p>
           </div>
 
-          <div className="rounded-md border">
+          <div className="bg-card rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -93,7 +93,7 @@ const Regions = () => {
                   <TableHead>Inequality</TableHead>
                   <TableHead>Priority Score</TableHead>
                   <TableHead>Recommended Category</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -108,9 +108,7 @@ const Regions = () => {
                     <TableCell>{getScoreBadge(region.climate_need_score)}</TableCell>
                     <TableCell>{getScoreBadge(region.inequality_score)}</TableCell>
                     <TableCell>
-                      <span className="font-semibold text-primary">
-                        {region.priority_score.toFixed(2)}
-                      </span>
+                      <span className="font-semibold">{region.priority_score.toFixed(2)}</span>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="border-primary/20 text-primary">
@@ -137,7 +135,7 @@ const Regions = () => {
 
           {regions.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No regions found.</p>
+              <p className="text-muted-foreground">No regions data available.</p>
             </div>
           )}
         </div>

@@ -601,7 +601,7 @@ const getTranslations = (lang: Language): Record<string, string> => {
       "common.delete": "Elimina",
       "common.edit": "Modifica",
       "common.search": "Cerca",
-      "common.saving": "Salvata ggio...",
+      "common.saving": "Salvataggio...",
       "common.uploading": "Caricamento...",
       "home.badge": "Azione Climatica Incontra Opportunità Economica",
       "home.title": "GreenWorks CodeX",

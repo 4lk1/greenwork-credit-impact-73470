@@ -6,12 +6,17 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
 };
 
 const requestSchema = z.object({
   email: z.string().email().max(255),
   code: z.string().regex(/^\d{6}$/, "Code must be exactly 6 digits"),
   type: z.enum(["signup", "login"]),
+  // Honeypot field - should always be empty for legitimate requests
+  website: z.string().optional(),
 });
 
 const handler = async (req: Request): Promise<Response> => {
@@ -38,7 +43,24 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { email, code, type } = validation.data;
+    const { email, code, type, website } = validation.data;
+    
+    // Honeypot detection - if website field is filled, it's likely a bot
+    if (website && website.trim() !== "") {
+      console.warn(`[SECURITY] Honeypot triggered for email: ${email}`);
+      // Return generic error to avoid revealing the honeypot
+      return new Response(
+        JSON.stringify({
+          verified: false,
+          error: "Invalid or expired verification code",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+    
     console.log(`Verifying ${type} code for:`, email);
 
     // Initialize Supabase client
@@ -46,26 +68,48 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Rate limiting: Count failed attempts in the last 15 minutes
+    // Enhanced rate limiting with exponential backoff for failed verifications
     const fifteenMinutesAgo = new Date();
     fifteenMinutesAgo.setMinutes(fifteenMinutesAgo.getMinutes() - 15);
+    const oneHourAgo = new Date();
+    oneHourAgo.setHours(oneHourAgo.getHours() - 1);
     
     const { data: recentAttempts, error: rateLimitError } = await supabase
       .from("verification_codes")
-      .select("id, verified")
+      .select("id, verified, created_at")
       .eq("email", email)
       .eq("type", type)
-      .gte("created_at", fifteenMinutesAgo.toISOString());
+      .gte("created_at", oneHourAgo.toISOString())
+      .order("created_at", { ascending: false });
 
     if (!rateLimitError && recentAttempts) {
-      // Count codes that were created but not verified (failed attempts)
-      const failedAttempts = recentAttempts.filter(a => !a.verified).length;
+      const last15MinFailed = recentAttempts.filter(
+        a => !a.verified && a.created_at >= fifteenMinutesAgo.toISOString()
+      ).length;
+      const last60MinFailed = recentAttempts.filter(a => !a.verified).length;
       
-      if (failedAttempts >= 5) {
-        console.log(`Too many failed attempts for ${email}`);
+      // Log pattern for monitoring
+      console.log(`[RATE_LIMIT_CHECK] Email: ${email}, Failed last 15min: ${last15MinFailed}, Failed last 60min: ${last60MinFailed}`);
+      
+      // Exponential backoff for repeated failed attempts
+      if (last15MinFailed >= 5) {
+        console.warn(`[SECURITY] Too many failed attempts (15min) for ${email}`);
         return new Response(
           JSON.stringify({ 
             error: "Too many failed attempts. Please wait 15 minutes or request a new code." 
+          }),
+          {
+            status: 429,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+      
+      if (last60MinFailed >= 10) {
+        console.warn(`[SECURITY] Suspicious verification activity for ${email} - ${last60MinFailed} failed attempts in 1 hour`);
+        return new Response(
+          JSON.stringify({ 
+            error: "Too many failed attempts. Please wait 1 hour or request a new verification code." 
           }),
           {
             status: 429,
@@ -89,7 +133,7 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (selectError || !verificationData) {
-      console.log("Invalid or expired verification code");
+      console.warn(`[SECURITY] Invalid/expired code attempt for ${email} - code: ${code.substring(0, 2)}****`);
       return new Response(
         JSON.stringify({
           verified: false,

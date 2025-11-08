@@ -9,11 +9,16 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
 };
 
 const requestSchema = z.object({
   email: z.string().email().max(255),
   type: z.enum(["signup", "login"]),
+  // Honeypot field - should always be empty for legitimate requests
+  website: z.string().optional(),
 });
 
 const handler = async (req: Request): Promise<Response> => {
@@ -40,7 +45,21 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { email, type } = validation.data;
+    const { email, type, website } = validation.data;
+    
+    // Honeypot detection - if website field is filled, it's likely a bot
+    if (website && website.trim() !== "") {
+      console.warn(`[SECURITY] Honeypot triggered for email: ${email}`);
+      // Return success to avoid revealing the honeypot
+      return new Response(
+        JSON.stringify({ message: "Verification code sent successfully" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+    
     console.log(`Sending ${type} verification code to:`, email);
 
     // Initialize Supabase client
@@ -48,30 +67,71 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Rate limiting: Check recent requests (max 3 per 5 minutes per email)
+    // Enhanced rate limiting with exponential backoff tracking
     const fiveMinutesAgo = new Date();
     fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+    const fifteenMinutesAgo = new Date();
+    fifteenMinutesAgo.setMinutes(fifteenMinutesAgo.getMinutes() - 15);
+    const oneHourAgo = new Date();
+    oneHourAgo.setHours(oneHourAgo.getHours() - 1);
     
     const { data: recentCodes, error: rateLimitError } = await supabase
       .from("verification_codes")
-      .select("id")
+      .select("id, created_at")
       .eq("email", email)
       .eq("type", type)
-      .gte("created_at", fiveMinutesAgo.toISOString());
+      .gte("created_at", oneHourAgo.toISOString())
+      .order("created_at", { ascending: false });
 
     if (rateLimitError) {
       console.error("Error checking rate limit:", rateLimitError);
-    } else if (recentCodes && recentCodes.length >= 3) {
-      console.log(`Rate limit exceeded for ${email}`);
-      return new Response(
-        JSON.stringify({ 
-          error: "Too many requests. Please wait a few minutes before requesting another code." 
-        }),
-        {
-          status: 429,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
+    } else if (recentCodes) {
+      const last5Min = recentCodes.filter(c => c.created_at >= fiveMinutesAgo.toISOString()).length;
+      const last15Min = recentCodes.filter(c => c.created_at >= fifteenMinutesAgo.toISOString()).length;
+      const last60Min = recentCodes.length;
+      
+      // Log pattern for monitoring
+      console.log(`[RATE_LIMIT_CHECK] Email: ${email}, Last 5min: ${last5Min}, Last 15min: ${last15Min}, Last 60min: ${last60Min}`);
+      
+      // Exponential backoff: stricter limits for repeated attempts
+      if (last5Min >= 3) {
+        console.warn(`[SECURITY] Rate limit exceeded (5min) for ${email}`);
+        return new Response(
+          JSON.stringify({ 
+            error: "Too many requests. Please wait 5 minutes before requesting another code." 
+          }),
+          {
+            status: 429,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+      
+      if (last15Min >= 5) {
+        console.warn(`[SECURITY] Rate limit exceeded (15min) for ${email}`);
+        return new Response(
+          JSON.stringify({ 
+            error: "Too many requests. Please wait 15 minutes before requesting another code." 
+          }),
+          {
+            status: 429,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+      
+      if (last60Min >= 10) {
+        console.warn(`[SECURITY] Suspicious activity detected for ${email} - ${last60Min} requests in 1 hour`);
+        return new Response(
+          JSON.stringify({ 
+            error: "Too many requests. Please wait 1 hour or contact support if you need assistance." 
+          }),
+          {
+            status: 429,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
     }
 
     // Generate 6-digit code

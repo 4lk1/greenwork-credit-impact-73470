@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Briefcase, TrendingUp, Leaf, Award, Users, Globe, UserPlus } from "lucide-react";
+import { Briefcase, TrendingUp, Leaf, Award, Users, Globe, UserPlus, Code2, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StaggeredGrid } from "@/components/StaggeredGrid";
@@ -86,6 +86,46 @@ const Index = () => {
               </Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* App Introduction Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <Card className="gradient-card border-2 border-primary/20 shadow-large">
+            <CardContent className="pt-8 pb-8 px-6 md:px-12">
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="flex-shrink-0">
+                  <div className="h-16 w-16 rounded-xl gradient-primary flex items-center justify-center shadow-medium">
+                    <Leaf className="h-8 w-8 text-primary-foreground" />
+                  </div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                    About GreenWorks
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    GreenWorks is an innovative platform that connects sustainability with action. 
+                    We empower individuals across Europe to contribute to environmental conservation 
+                    through accessible micro-jobs, while earning rewards and making a real impact on 
+                    our planet&apos;s future. Every task completed is a step toward a greener tomorrow.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Our mission is to democratize environmental action by breaking down large 
+                    sustainability goals into manageable, rewarding tasks that anyone can complete. 
+                    From tree planting initiatives to waste reduction campaigns, each micro-job 
+                    contributes to measurable CO₂ reduction and ecosystem restoration.
+                  </p>
+                  <div className="flex items-center gap-2 pt-4 border-t border-border/50">
+                    <Code2 className="h-5 w-5 text-primary" />
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      Crafted with <Heart className="h-4 w-4 text-destructive fill-destructive" /> by the <span className="font-semibold text-foreground">Codex Developer Team</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -184,6 +224,20 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer Credits */}
+      <footer className="container mx-auto px-4 py-8 border-t border-border/50">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Leaf className="h-4 w-4 text-primary" />
+            <span>© 2025 GreenWorks. Building a sustainable future together.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Code2 className="h-4 w-4 text-primary" />
+            <span>Developed by <span className="font-semibold text-foreground">Codex Developer Team</span></span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

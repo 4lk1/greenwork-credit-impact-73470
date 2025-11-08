@@ -1,5 +1,5 @@
 import { Navigation } from "@/components/Navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, MapPin, Clock, Award, Leaf, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, MapPin, Clock, Award, Leaf, CheckCircle2, AlertCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 
 interface MicroJob {
@@ -51,6 +51,20 @@ const JobDetail = () => {
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [progressId, setProgressId] = useState<string | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get or create session ID
+  const getSessionId = () => {
+    let sessionId = localStorage.getItem('session_id');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem('session_id', sessionId);
+    }
+    return sessionId;
+  };
 
   useEffect(() => {
     if (id) {
@@ -58,8 +72,31 @@ const JobDetail = () => {
     }
   }, [id]);
 
+  // Auto-save answers when they change
+  useEffect(() => {
+    if (progressId && Object.keys(answers).length > 0 && !showResults) {
+      // Clear existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      // Set new timeout for debounced save
+      saveTimeoutRef.current = setTimeout(() => {
+        saveProgress();
+      }, 1000); // Save after 1 second of inactivity
+    }
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [answers, progressId, showResults]);
+
   const fetchJobData = async () => {
     try {
+      const sessionId = getSessionId();
+
       // Fetch job
       const { data: jobData, error: jobError } = await supabase
         .from("micro_jobs")
@@ -89,11 +126,65 @@ const JobDetail = () => {
 
       if (questionsError) throw questionsError;
       setQuestions(questionsData || []);
+
+      // Load existing progress
+      const { data: progressData } = await supabase
+        .from("job_progress")
+        .select("*")
+        .eq("microjob_id", id)
+        .eq("user_id", sessionId)
+        .maybeSingle();
+
+      if (progressData) {
+        setProgressId(progressData.id);
+        setAnswers((progressData.quiz_answers as Record<string, string>) || {});
+        setLastSaved(new Date(progressData.last_updated));
+        toast.success("Progress restored", {
+          description: "Your previous answers have been loaded.",
+        });
+      } else {
+        // Create new progress record
+        const { data: newProgress, error: progressError } = await supabase
+          .from("job_progress")
+          .insert({
+            microjob_id: id,
+            user_id: sessionId,
+            quiz_answers: {},
+          })
+          .select()
+          .single();
+
+        if (!progressError && newProgress) {
+          setProgressId(newProgress.id);
+        }
+      }
     } catch (error) {
       console.error("Error fetching job data:", error);
       toast.error("Failed to load job details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveProgress = async () => {
+    if (!progressId) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from("job_progress")
+        .update({
+          quiz_answers: answers,
+        })
+        .eq("id", progressId);
+
+      if (error) throw error;
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error("Error saving progress:", error);
+      toast.error("Failed to save progress");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -123,6 +214,11 @@ const JobDetail = () => {
       });
 
       if (error) throw error;
+
+      // Delete progress record after completion
+      if (progressId) {
+        await supabase.from("job_progress").delete().eq("id", progressId);
+      }
 
       toast.success("Congratulations! Job completed successfully!", {
         description: `You earned ${job.reward_credits} credits and offset ${job.estimated_co2_kg_impact} kg CO₂!`,
@@ -246,10 +342,22 @@ const JobDetail = () => {
           {/* Quiz */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Knowledge Quiz</CardTitle>
-              <CardDescription>
-                Pass with 60% or higher to complete this micro-job
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl">Knowledge Quiz</CardTitle>
+                  <CardDescription>
+                    Pass with 60% or higher to complete this micro-job
+                  </CardDescription>
+                </div>
+                {lastSaved && !showResults && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Save className={`h-4 w-4 ${isSaving ? 'animate-pulse' : ''}`} />
+                    <span>
+                      {isSaving ? 'Saving...' : `Saved ${new Date(lastSaved).toLocaleTimeString()}`}
+                    </span>
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
               {questions.map((question, index) => (

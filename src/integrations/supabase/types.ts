@@ -59,6 +59,33 @@ export type Database = {
           },
         ]
       }
+      job_progress: {
+        Row: {
+          created_at: string
+          id: string
+          last_updated: string
+          microjob_id: string
+          quiz_answers: Json
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          microjob_id: string
+          quiz_answers?: Json
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          microjob_id?: string
+          quiz_answers?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       micro_jobs: {
         Row: {
           category: string

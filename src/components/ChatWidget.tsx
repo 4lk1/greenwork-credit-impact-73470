@@ -150,15 +150,14 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
           <Button
             onClick={() => setIsOpen(true)}
             size="lg"
-            className="relative h-14 w-14 md:h-16 md:w-16 rounded-full shadow-glow gradient-primary hover:scale-110 transition-smooth animate-pulse group"
+            className="relative h-14 w-14 md:h-16 md:w-16 rounded-full shadow-glow gradient-primary hover:scale-110 transition-smooth group"
           >
-            <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
             <div className="relative flex flex-col items-center justify-center gap-0.5">
               <Leaf className="h-5 w-5 md:h-6 md:w-6" />
               <span className="text-[9px] md:text-[10px] font-semibold">Chat</span>
             </div>
           </Button>
-          <div className="absolute -top-2 -right-2 h-4 w-4 bg-accent rounded-full border-2 border-background animate-pulse" />
+          <div className="absolute -top-2 -right-2 h-4 w-4 bg-accent rounded-full border-2 border-background" />
         </div>
       )}
 

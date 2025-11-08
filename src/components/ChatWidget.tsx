@@ -94,16 +94,16 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
     <>
       {/* Chat Bubble Button */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-40 animate-fade-in">
+        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] animate-fade-in">
           <Button
             onClick={() => setIsOpen(true)}
             size="lg"
-            className="relative h-16 w-16 rounded-full shadow-glow gradient-primary hover:scale-110 transition-smooth animate-pulse group"
+            className="relative h-14 w-14 md:h-16 md:w-16 rounded-full shadow-glow gradient-primary hover:scale-110 transition-smooth animate-pulse group"
           >
             <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
             <div className="relative flex flex-col items-center justify-center gap-0.5">
-              <Leaf className="h-6 w-6" />
-              <span className="text-[10px] font-semibold">Chat</span>
+              <Leaf className="h-5 w-5 md:h-6 md:w-6" />
+              <span className="text-[9px] md:text-[10px] font-semibold">Chat</span>
             </div>
           </Button>
           <div className="absolute -top-2 -right-2 h-4 w-4 bg-accent rounded-full border-2 border-background animate-pulse" />
@@ -112,12 +112,12 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
 
       {/* Chat Panel */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-40 animate-scale-in">
-          <CardHeader className="gradient-primary text-primary-foreground p-4 rounded-t-lg">
+        <Card className="fixed bottom-4 right-4 md:bottom-6 md:right-6 w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[9999] animate-scale-in">
+          <CardHeader className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <div className="h-8 w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                  <Leaf className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                  <Leaf className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 GreenBot
               </CardTitle>
@@ -135,16 +135,16 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
             </p>
           </CardHeader>
 
-          <CardContent className="flex-1 flex flex-col p-0">
-            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-              <div className="space-y-4">
+          <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+            <ScrollArea className="flex-1 p-3 md:p-4" ref={scrollRef}>
+              <div className="space-y-3 md:space-y-4">
                 {messages.map((message, index) => (
                   <div
                     key={index}
                     className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-lg p-3 ${
+                      className={`max-w-[85%] rounded-lg p-2.5 md:p-3 ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
@@ -156,7 +156,7 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
                           <span className="text-xs font-semibold text-primary">GreenBot</span>
                         </div>
                       )}
-                      <div className="text-sm whitespace-pre-wrap break-words">
+                      <div className="text-xs md:text-sm whitespace-pre-wrap break-words">
                         {message.content}
                       </div>
                     </div>
@@ -164,16 +164,16 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
                 ))}
                 {isLoading && (
                   <div className="flex justify-start animate-fade-in">
-                    <div className="bg-muted rounded-lg p-3 flex items-center gap-2">
+                    <div className="bg-muted rounded-lg p-2.5 md:p-3 flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                      <span className="text-sm text-muted-foreground">GreenBot is thinking...</span>
+                      <span className="text-xs md:text-sm text-muted-foreground">GreenBot is thinking...</span>
                     </div>
                   </div>
                 )}
               </div>
             </ScrollArea>
 
-            <div className="border-t p-4 bg-background">
+            <div className="border-t p-3 md:p-4 bg-background flex-shrink-0">
               <div className="flex gap-2">
                 <Input
                   value={input}
@@ -181,13 +181,13 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
                   onKeyPress={handleKeyPress}
                   placeholder="Ask me anything..."
                   disabled={isLoading}
-                  className="flex-1"
+                  className="flex-1 text-sm"
                 />
                 <Button
                   onClick={sendMessage}
                   disabled={isLoading || !input.trim()}
                   size="icon"
-                  className="gradient-primary"
+                  className="gradient-primary flex-shrink-0"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

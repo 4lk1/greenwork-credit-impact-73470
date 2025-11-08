@@ -26,6 +26,9 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -90,11 +93,60 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
+    // Keep within viewport bounds
+    const maxX = window.innerWidth - 80; // button/panel width
+    const maxY = window.innerHeight - 80; // button/panel height
+    
+    setPosition({
+      x: Math.max(-maxX + 100, Math.min(maxX - 100, newX)),
+      y: Math.max(-maxY + 100, Math.min(maxY - 100, newY))
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart, position]);
+
   return (
     <>
       {/* Chat Bubble Button */}
       {!isOpen && (
-        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[99999] animate-fade-in" style={{ position: 'fixed' }}>
+        <div 
+          className="fixed z-[99999] animate-fade-in cursor-move"
+          style={{ 
+            right: position.x === 0 ? '1rem' : 'auto',
+            bottom: position.y === 0 ? '1rem' : 'auto',
+            left: position.x !== 0 ? `calc(50% + ${position.x}px)` : 'auto',
+            top: position.y !== 0 ? `calc(50% + ${position.y}px)` : 'auto',
+            transform: position.x !== 0 || position.y !== 0 ? 'translate(-50%, -50%)' : 'none'
+          }}
+          onMouseDown={handleMouseDown}
+        >
           <Button
             onClick={() => setIsOpen(true)}
             size="lg"
@@ -112,8 +164,20 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
 
       {/* Chat Panel */}
       {isOpen && (
-        <Card className="fixed bottom-4 right-4 md:bottom-6 md:right-6 w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[99999] animate-scale-in" style={{ position: 'fixed' }}>
-          <CardHeader className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0">
+        <Card 
+          className="fixed w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[99999] animate-scale-in"
+          style={{ 
+            right: position.x === 0 ? '1rem' : 'auto',
+            bottom: position.y === 0 ? '1rem' : 'auto',
+            left: position.x !== 0 ? `calc(50% + ${position.x}px)` : 'auto',
+            top: position.y !== 0 ? `calc(50% + ${position.y}px)` : 'auto',
+            transform: position.x !== 0 || position.y !== 0 ? 'translate(-50%, -50%)' : 'none'
+          }}
+        >
+          <CardHeader 
+            className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0 cursor-move"
+            onMouseDown={handleMouseDown}
+          >
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                 <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">

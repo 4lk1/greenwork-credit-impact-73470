@@ -161,7 +161,7 @@ const JobDetail = () => {
     );
   }
 
-  const isPassing = score >= 70;
+  const isPassing = score >= 60;
   const allQuestionsAnswered = questions.every((q) => answers[q.id]);
 
   return (
@@ -219,7 +219,7 @@ const JobDetail = () => {
           {/* Training Module */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">{training.title}</CardTitle>
+              <CardTitle className="text-2xl">Learning</CardTitle>
               <CardDescription>Complete this training before taking the quiz</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -248,7 +248,7 @@ const JobDetail = () => {
             <CardHeader>
               <CardTitle className="text-2xl">Knowledge Quiz</CardTitle>
               <CardDescription>
-                Pass with 70% or higher to complete this micro-job
+                Pass with 60% or higher to complete this micro-job
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

@@ -2,13 +2,14 @@ import { Navigation } from "@/components/Navigation";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, MapPin, Clock, Award, Leaf, CheckCircle2, AlertCircle, Save } from "lucide-react";
+import { Loader2, MapPin, Clock, Award, Leaf, CheckCircle2, AlertCircle, Save, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -46,6 +47,7 @@ const JobDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [job, setJob] = useState<MicroJob | null>(null);
   const [training, setTraining] = useState<TrainingModule | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -88,15 +90,6 @@ const JobDetail = () => {
 
   const fetchJobData = async () => {
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error("Please log in to access this job");
-        navigate("/auth");
-        return;
-      }
-
       // Fetch job
       const { data: jobData, error: jobError } = await supabase
         .from("micro_jobs")
@@ -127,35 +120,37 @@ const JobDetail = () => {
       if (questionsError) throw questionsError;
       setQuestions(questionsData || []);
 
-      // Load existing progress
-      const { data: progressData } = await supabase
-        .from("job_progress")
-        .select("*")
-        .eq("microjob_id", id)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (progressData) {
-        setProgressId(progressData.id);
-        setAnswers((progressData.quiz_answers as Record<string, string>) || {});
-        setLastSaved(new Date(progressData.last_updated));
-        toast.success("Progress restored", {
-          description: "Your previous answers have been loaded.",
-        });
-      } else {
-        // Create new progress record
-        const { data: newProgress, error: progressError } = await supabase
+      // Load existing progress only if user is logged in
+      if (user) {
+        const { data: progressData } = await supabase
           .from("job_progress")
-          .insert({
-            microjob_id: id,
-            user_id: user.id,
-            quiz_answers: {},
-          })
-          .select()
-          .single();
+          .select("*")
+          .eq("microjob_id", id)
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-        if (!progressError && newProgress) {
-          setProgressId(newProgress.id);
+        if (progressData) {
+          setProgressId(progressData.id);
+          setAnswers((progressData.quiz_answers as Record<string, string>) || {});
+          setLastSaved(new Date(progressData.last_updated));
+          toast.success("Progress restored", {
+            description: "Your previous answers have been loaded.",
+          });
+        } else {
+          // Create new progress record
+          const { data: newProgress, error: progressError } = await supabase
+            .from("job_progress")
+            .insert({
+              microjob_id: id,
+              user_id: user.id,
+              quiz_answers: {},
+            })
+            .select()
+            .single();
+
+          if (!progressError && newProgress) {
+            setProgressId(newProgress.id);
+          }
         }
       }
     } catch (error) {
@@ -189,6 +184,12 @@ const JobDetail = () => {
   };
 
   const handleSubmitQuiz = () => {
+    if (!user) {
+      toast.error("Please log in to submit the quiz");
+      navigate("/auth");
+      return;
+    }
+
     let correctAnswers = 0;
     questions.forEach((q) => {
       if (answers[q.id] === q.correct_option) {
@@ -202,18 +203,10 @@ const JobDetail = () => {
   };
 
   const handleCompleteJob = async () => {
-    if (!job) return;
+    if (!job || !user) return;
 
     setIsCompleting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error("Please log in to complete this job");
-        navigate("/auth");
-        return;
-      }
-
       const { error } = await supabase.from("job_completions").insert({
         user_id: user.id,
         microjob_id: job.id,
@@ -369,6 +362,25 @@ const JobDetail = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {!user && (
+                <Card className="border-primary/50 bg-primary/5">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col items-center text-center space-y-3">
+                      <LogIn className="h-10 w-10 text-primary" />
+                      <div>
+                        <h4 className="font-semibold text-lg mb-1">Login Required</h4>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          You're viewing as a visitor. Please log in or sign up to take the quiz and earn credits.
+                        </p>
+                      </div>
+                      <Button onClick={() => navigate("/auth")} className="w-full sm:w-auto">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Login / Sign Up
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               {questions.map((question, index) => (
                 <div key={question.id} className="space-y-3">
                   <h4 className="font-medium">
@@ -379,7 +391,7 @@ const JobDetail = () => {
                     onValueChange={(value) =>
                       setAnswers((prev) => ({ ...prev, [question.id]: value }))
                     }
-                    disabled={showResults}
+                    disabled={showResults || !user}
                   >
                     {["a", "b", "c", "d"].map((option) => {
                       const isCorrect = question.correct_option === option;

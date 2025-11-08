@@ -36,9 +36,9 @@ const App = () => (
             <Suspense fallback={<PageLoadingSkeleton />}>
               <Routes>
                 <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-                <Route path="/jobs" element={<ProtectedRoute><PageTransition><Jobs /></PageTransition></ProtectedRoute>} />
-                <Route path="/jobs/:id" element={<ProtectedRoute><PageTransition><JobDetail /></PageTransition></ProtectedRoute>} />
-                <Route path="/impact" element={<ProtectedRoute><PageTransition><Impact /></PageTransition></ProtectedRoute>} />
+                <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
+                <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
+                <Route path="/impact" element={<PageTransition><Impact /></PageTransition>} />
                 <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
                 <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
                 <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />

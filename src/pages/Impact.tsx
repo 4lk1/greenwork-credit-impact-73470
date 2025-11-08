@@ -75,15 +75,20 @@ const Impact = () => {
   };
 
   const getCategoryData = () => {
-    const categoryMap: Record<string, number> = {};
+    const categoryMap: Record<string, { co2: number; credits: number }> = {};
     completions.forEach((c) => {
       const category = c.micro_jobs.category;
-      categoryMap[category] = (categoryMap[category] || 0) + Number(c.estimated_co2_kg_impact);
+      if (!categoryMap[category]) {
+        categoryMap[category] = { co2: 0, credits: 0 };
+      }
+      categoryMap[category].co2 += Number(c.estimated_co2_kg_impact);
+      categoryMap[category].credits += c.earned_credits;
     });
 
-    return Object.entries(categoryMap).map(([name, value]) => ({
+    return Object.entries(categoryMap).map(([name, data]) => ({
       name: name.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
-      value: Math.round(value * 10) / 10,
+      co2: Math.round(data.co2 * 10) / 10,
+      credits: data.credits,
     }));
   };
 
@@ -112,6 +117,17 @@ const Impact = () => {
               Track your contribution to climate resilience
             </p>
           </div>
+
+          {/* Prototype Disclaimer */}
+          <Card className="bg-muted/50 border-primary/20">
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">
+                Our prototype simulates how climate-resilience micro-jobs can generate both
+                economic and climate benefits. In a real deployment, each completion would
+                correspond to verified field activity.
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Stats Cards */}
           <div className="grid md:grid-cols-4 gap-4">
@@ -174,6 +190,24 @@ const Impact = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
+                    <CardTitle>Credits by Category</CardTitle>
+                    <CardDescription>Total credits earned per job category</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={getCategoryData()}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="credits" fill="hsl(28, 80%, 52%)" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
                     <CardTitle>CO₂ Impact by Category</CardTitle>
                     <CardDescription>Distribution of your climate impact</CardDescription>
                   </CardHeader>
@@ -188,7 +222,7 @@ const Impact = () => {
                           label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                           outerRadius={80}
                           fill="#8884d8"
-                          dataKey="value"
+                          dataKey="co2"
                         >
                           {getCategoryData().map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -197,29 +231,6 @@ const Impact = () => {
                         <Tooltip />
                         <Legend />
                       </PieChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Credits Over Time</CardTitle>
-                    <CardDescription>Your earning progression</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={completions.slice(0, 10).reverse()}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis
-                          dataKey="completed_at"
-                          tickFormatter={(value) => new Date(value).toLocaleDateString()}
-                        />
-                        <YAxis />
-                        <Tooltip
-                          labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                        />
-                        <Bar dataKey="earned_credits" fill="hsl(142, 76%, 36%)" />
-                      </BarChart>
                     </ResponsiveContainer>
                   </CardContent>
                 </Card>

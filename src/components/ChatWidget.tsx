@@ -94,7 +94,7 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
     <>
       {/* Chat Bubble Button */}
       {!isOpen && (
-        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9999] animate-fade-in">
+        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[99999] animate-fade-in" style={{ position: 'fixed' }}>
           <Button
             onClick={() => setIsOpen(true)}
             size="lg"
@@ -112,7 +112,7 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
 
       {/* Chat Panel */}
       {isOpen && (
-        <Card className="fixed bottom-4 right-4 md:bottom-6 md:right-6 w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[9999] animate-scale-in">
+        <Card className="fixed bottom-4 right-4 md:bottom-6 md:right-6 w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[99999] animate-scale-in" style={{ position: 'fixed' }}>
           <CardHeader className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">

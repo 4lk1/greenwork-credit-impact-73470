@@ -19,17 +19,7 @@ export default defineConfig(({ mode }) => ({
     // Optimize bundle size with esbuild (default, faster than terser)
     target: 'esnext',
     minify: 'esbuild',
-    // Improve chunk splitting
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['lucide-react', '@radix-ui/react-avatar', '@radix-ui/react-dialog'],
-          'supabase': ['@supabase/supabase-js'],
-        },
-      },
-    },
-    // Increase chunk size warning limit for better splitting
+    // Let Vite handle chunk splitting automatically
     chunkSizeWarningLimit: 1000,
   },
   // Optimize dependencies

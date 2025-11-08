@@ -12,6 +12,11 @@ serve(async (req) => {
 
   try {
     const { message, context, history } = await req.json();
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
 
     // Build the system prompt with context
     const systemPrompt = `You are GreenBot, the friendly AI assistant for the GreenWorks CodeX app.
@@ -46,23 +51,21 @@ ${context ? `**Current Context:**\n${context}` : ""}`;
 
     console.log("GreenBot request:", { message, context, historyLength: history?.length });
 
-    // Build conversation history for Hugging Face format
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...(history || []),
-      { role: "user", content: message },
-    ];
-
-    // Use Hugging Face's free Inference API with Mistral model
-    const response = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages,
-        max_tokens: 500,
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...(history || []),
+          { role: "user", content: message },
+        ],
         temperature: 0.7,
+        max_tokens: 500,
       }),
     });
 

@@ -14,6 +14,16 @@ const emailSchema = z.string().email("Invalid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
 const usernameSchema = z.string().min(3, "Username must be at least 3 characters").max(20, "Username must be less than 20 characters");
 
+const signupSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
+  confirmPassword: z.string(),
+  username: usernameSchema,
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 const Auth = () => {
   const navigate = useNavigate();
   const { signIn, signUp, user } = useAuth();
@@ -26,6 +36,7 @@ const Auth = () => {
   // Signup form state
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
   const [signupUsername, setSignupUsername] = useState("");
 
   // Redirect if already logged in
@@ -70,9 +81,12 @@ const Auth = () => {
 
     // Validate inputs
     try {
-      emailSchema.parse(signupEmail);
-      passwordSchema.parse(signupPassword);
-      usernameSchema.parse(signupUsername);
+      signupSchema.parse({
+        email: signupEmail,
+        password: signupPassword,
+        confirmPassword: signupConfirmPassword,
+        username: signupUsername,
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
@@ -94,6 +108,11 @@ const Auth = () => {
       }
     } else {
       toast.success("Account created successfully!");
+      // Clear form
+      setSignupEmail("");
+      setSignupPassword("");
+      setSignupConfirmPassword("");
+      setSignupUsername("");
     }
   };
 
@@ -191,7 +210,26 @@ const Auth = () => {
                     onChange={(e) => setSignupPassword(e.target.value)}
                     required
                     disabled={isLoading}
+                    minLength={6}
                   />
+                  <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={signupConfirmPassword}
+                    onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    minLength={6}
+                    className={signupPassword && signupConfirmPassword && signupPassword !== signupConfirmPassword ? "border-destructive" : ""}
+                  />
+                  {signupPassword && signupConfirmPassword && signupPassword !== signupConfirmPassword && (
+                    <p className="text-xs text-destructive">Passwords don't match</p>
+                  )}
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (

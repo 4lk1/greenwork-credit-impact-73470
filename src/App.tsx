@@ -21,6 +21,7 @@ const Regions = lazy(() => import("./pages/Regions"));
 const RegionDetail = lazy(() => import("./pages/RegionDetail"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Auth = lazy(() => import("./pages/Auth"));
+const QuizChat = lazy(() => import("./pages/QuizChat"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -67,16 +68,17 @@ const App = memo(() => {
               <AuthProvider>
               <Suspense fallback={<PageLoadingSkeleton />}>
                 <Routes>
-                  <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-                  <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
-                  <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
-                  <Route path="/impact" element={<PageTransition><Impact /></PageTransition>} />
-                  <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
-                  <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
-                  <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
-                  <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+                <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+                <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
+                <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
+                <Route path="/impact" element={<PageTransition><Impact /></PageTransition>} />
+                <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+                <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
+                <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
+                <Route path="/quiz" element={<PageTransition><QuizChat /></PageTransition>} />
+                <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
                 </Routes>
               </Suspense>
               </AuthProvider>

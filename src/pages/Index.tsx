@@ -2,9 +2,13 @@ import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Briefcase, TrendingUp, Leaf, Award, Users, Globe } from "lucide-react";
+import { Briefcase, TrendingUp, Leaf, Award, Users, Globe, UserPlus } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -24,6 +28,15 @@ const Index = () => {
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Climate-resilience micro-jobs and learning for vulnerable communities in Europe.
           </p>
+
+          {!user && (
+            <Alert className="max-w-2xl mx-auto bg-primary/5 border-primary/20">
+              <UserPlus className="h-5 w-5 text-primary" />
+              <AlertDescription className="text-base">
+                <strong>Welcome!</strong> Sign up or log in to start earning credits and making a climate impact.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button asChild size="lg" className="text-base">
@@ -130,12 +143,34 @@ const Index = () => {
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold">Ready to Make an Impact?</h2>
           <p className="text-lg text-muted-foreground">
-            Join GreenWorks CodeX today and start your journey towards a more sustainable future 
-            while earning economic rewards.
+            {user 
+              ? "Continue your journey towards a more sustainable future while earning economic rewards."
+              : "Join GreenWorks CodeX today and start your journey towards a more sustainable future while earning economic rewards."
+            }
           </p>
-          <Button asChild size="lg">
-            <Link to="/jobs">Get Started Now</Link>
-          </Button>
+          {user ? (
+            <Button asChild size="lg">
+              <Link to="/jobs">
+                <Briefcase className="mr-2 h-5 w-5" />
+                Browse Available Jobs
+              </Link>
+            </Button>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg">
+                <Link to="/auth">
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Sign Up Free
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link to="/regions">
+                  <Globe className="mr-2 h-5 w-5" />
+                  Explore Regions
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
       </section>
     </div>

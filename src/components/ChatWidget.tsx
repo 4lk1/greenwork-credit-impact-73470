@@ -26,9 +26,7 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isTopPosition, setIsTopPosition] = useState(true); // Toggle between top and bottom
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -93,59 +91,20 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
+  const togglePosition = () => {
+    setIsTopPosition(!isTopPosition);
   };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
-    
-    // Keep within viewport bounds
-    const maxX = window.innerWidth - 80; // button/panel width
-    const maxY = window.innerHeight - 80; // button/panel height
-    
-    setPosition({
-      x: Math.max(-maxX + 100, Math.min(maxX - 100, newX)),
-      y: Math.max(-maxY + 100, Math.min(maxY - 100, newY))
-    });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragStart, position]);
 
   return (
     <>
       {/* Chat Bubble Button */}
       {!isOpen && (
         <div 
-          className="fixed z-[99999] animate-fade-in cursor-move"
+          className="fixed z-50 animate-fade-in"
           style={{ 
-            right: position.x === 0 ? '1.5rem' : 'auto',
-            top: position.y === 0 ? '6rem' : 'auto',
-            left: position.x !== 0 ? `calc(50% + ${position.x}px)` : 'auto',
-            bottom: position.y !== 0 ? `calc(50% - ${position.y}px)` : 'auto',
-            transform: position.x !== 0 || position.y !== 0 ? 'translate(-50%, -50%)' : 'none'
+            right: '1.5rem',
+            ...(isTopPosition ? { top: '6rem' } : { bottom: '1.5rem' })
           }}
-          onMouseDown={handleMouseDown}
         >
           <Button
             onClick={() => setIsOpen(true)}
@@ -164,18 +123,14 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
       {/* Chat Panel */}
       {isOpen && (
         <Card 
-          className="fixed w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[99999] animate-scale-in"
+          className="fixed w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-50 animate-scale-in"
           style={{ 
-            right: position.x === 0 ? '1.5rem' : 'auto',
-            top: position.y === 0 ? '6rem' : 'auto',
-            left: position.x !== 0 ? `calc(50% + ${position.x}px)` : 'auto',
-            bottom: position.y !== 0 ? `calc(50% - ${position.y}px)` : 'auto',
-            transform: position.x !== 0 || position.y !== 0 ? 'translate(-50%, -50%)' : 'none'
+            right: '1.5rem',
+            ...(isTopPosition ? { top: '6rem' } : { bottom: '1.5rem' })
           }}
         >
           <CardHeader 
-            className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0 cursor-move"
-            onMouseDown={handleMouseDown}
+            className="gradient-primary text-primary-foreground p-3 md:p-4 rounded-t-lg flex-shrink-0"
           >
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
@@ -184,14 +139,25 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
                 </div>
                 GreenBot
               </CardTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={togglePosition}
+                  className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
+                  title={isTopPosition ? "Move to bottom" : "Move to top"}
+                >
+                  <span className="text-xs">{isTopPosition ? "↓" : "↑"}</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsOpen(false)}
+                  className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <p className="text-xs text-primary-foreground/80 mt-1">
               Your GreenWorks assistant

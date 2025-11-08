@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link, useSearchParams } from "react-router-dom";
 import { Loader2, MapPin, Clock, Award, Leaf } from "lucide-react";
 import { toast } from "sonner";
+import { StaggeredGrid } from "@/components/StaggeredGrid";
 
 interface MicroJob {
   id: string;
@@ -150,50 +151,53 @@ const Jobs = () => {
           </div>
 
           {/* Jobs Grid */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {filteredJobs.map((job) => (
-              <Card key={job.id} className="hover:border-primary transition-colors">
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <Badge variant="outline" className="border-primary/20 text-primary">
-                      {getCategoryLabel(job.category)}
-                    </Badge>
-                    <Badge variant="outline" className={getDifficultyColor(job.difficulty_level)}>
-                      {job.difficulty_level}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-xl">{job.title}</CardTitle>
-                  <CardDescription className="line-clamp-2">{job.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      {job.location}
+          {filteredJobs.length > 0 ? (
+            <StaggeredGrid 
+              className="grid md:grid-cols-2 gap-6"
+              staggerDelay={100}
+            >
+              {filteredJobs.map((job) => (
+                <Card key={job.id} className="gradient-card hover:border-primary transition-smooth hover:shadow-medium">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-2">
+                      <Badge variant="outline" className="border-primary/20 text-primary">
+                        {getCategoryLabel(job.category)}
+                      </Badge>
+                      <Badge variant="outline" className={getDifficultyColor(job.difficulty_level)}>
+                        {job.difficulty_level}
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      Time: {job.estimated_duration_minutes} minutes
+                    <CardTitle className="text-xl">{job.title}</CardTitle>
+                    <CardDescription className="line-clamp-2">{job.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        {job.location}
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        Time: {job.estimated_duration_minutes} minutes
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Award className="h-4 w-4 text-warning" />
+                        {job.reward_credits} credits
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Leaf className="h-4 w-4 text-success" />
+                        Climate impact: {job.estimated_co2_kg_impact} kg CO₂
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Award className="h-4 w-4 text-warning" />
-                      {job.reward_credits} credits
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Leaf className="h-4 w-4 text-success" />
-                      Climate impact: {job.estimated_co2_kg_impact} kg CO₂
-                    </div>
-                  </div>
-                  <Button asChild className="w-full">
-                    <Link to={`/jobs/${job.id}`}>View Details & Training</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {filteredJobs.length === 0 && (
-            <div className="text-center py-12">
+                    <Button asChild className="w-full">
+                      <Link to={`/jobs/${job.id}`}>View Details & Training</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </StaggeredGrid>
+          ) : (
+            <div className="text-center py-12 animate-fade-in">
               <p className="text-muted-foreground">No jobs match your filters. Try adjusting them.</p>
             </div>
           )}

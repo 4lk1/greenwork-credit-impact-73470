@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { StaggeredList } from "@/components/StaggeredGrid";
 
 interface Region {
   id: string;
@@ -97,38 +98,41 @@ const Regions = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {regions.map((region) => (
-                  <TableRow 
-                    key={region.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => navigate(`/regions/${region.id}`)}
-                  >
-                    <TableCell className="font-medium">{region.region_name}</TableCell>
-                    <TableCell>{region.iso_country}</TableCell>
-                    <TableCell>{getScoreBadge(region.climate_need_score)}</TableCell>
-                    <TableCell>{getScoreBadge(region.inequality_score)}</TableCell>
-                    <TableCell>
-                      <span className="font-semibold">{region.priority_score.toFixed(2)}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="border-primary/20 text-primary">
-                        {getCategoryLabel(region.recommended_microjob_category)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/regions/${region.id}`);
-                        }}
-                      >
-                        View Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                <StaggeredList
+                  items={regions.map((region) => (
+                    <TableRow 
+                      key={region.id}
+                      className="cursor-pointer hover:bg-muted/50 transition-smooth"
+                      onClick={() => navigate(`/regions/${region.id}`)}
+                    >
+                      <TableCell className="font-medium">{region.region_name}</TableCell>
+                      <TableCell>{region.iso_country}</TableCell>
+                      <TableCell>{getScoreBadge(region.climate_need_score)}</TableCell>
+                      <TableCell>{getScoreBadge(region.inequality_score)}</TableCell>
+                      <TableCell>
+                        <span className="font-semibold">{region.priority_score.toFixed(2)}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="border-primary/20 text-primary">
+                          {getCategoryLabel(region.recommended_microjob_category)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/regions/${region.id}`);
+                          }}
+                        >
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  staggerDelay={50}
+                />
               </TableBody>
             </Table>
           </div>

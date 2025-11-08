@@ -5,9 +5,34 @@ import { Link } from "react-router-dom";
 import { Briefcase, TrendingUp, Leaf, Award, Users, Globe, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { StaggeredGrid } from "@/components/StaggeredGrid";
 
 const Index = () => {
   const { user } = useAuth();
+
+  const featureCards = [
+    {
+      icon: Briefcase,
+      title: "Discover Micro-Jobs",
+      description: "Browse climate-resilience opportunities across Europe—from tree planting to solar maintenance, tailored to your location and skill level."
+    },
+    {
+      icon: Award,
+      title: "Learn & Earn",
+      description: "Complete micro-learning modules with interactive quizzes. Pass the quiz to unlock job completion and earn credits."
+    },
+    {
+      icon: TrendingUp,
+      title: "Track Your Impact",
+      description: "Monitor your earned credits and estimated CO₂ offset on your personal impact dashboard. See your contribution grow."
+    }
+  ];
+
+  const stats = [
+    { icon: Users, value: "10+", label: "Micro-Jobs Available" },
+    { icon: Globe, value: "10", label: "European Locations" },
+    { icon: Leaf, value: "450+", label: "kg CO₂ Impact Potential" }
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,81 +95,51 @@ const Index = () => {
             How GreenWorks CodeX Works
           </h2>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
-              <CardContent className="pt-6 text-center space-y-4">
-                <div className="flex justify-center">
-                  <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
-                    <Briefcase className="h-7 w-7 text-primary-foreground" />
+          <StaggeredGrid 
+            className="grid md:grid-cols-3 gap-8"
+            staggerDelay={150}
+          >
+            {featureCards.map((feature) => (
+              <Card key={feature.title} className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
+                <CardContent className="pt-6 text-center space-y-4">
+                  <div className="flex justify-center">
+                    <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                      <feature.icon className="h-7 w-7 text-primary-foreground" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="text-xl font-semibold">Discover Micro-Jobs</h3>
-                <p className="text-muted-foreground">
-                  Browse climate-resilience opportunities across Europe—from tree planting 
-                  to solar maintenance, tailored to your location and skill level.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
-              <CardContent className="pt-6 text-center space-y-4">
-                <div className="flex justify-center">
-                  <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
-                    <Award className="h-7 w-7 text-primary-foreground" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold">Learn & Earn</h3>
-                <p className="text-muted-foreground">
-                  Complete micro-learning modules with interactive quizzes. 
-                  Pass the quiz to unlock job completion and earn credits.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
-              <CardContent className="pt-6 text-center space-y-4">
-                <div className="flex justify-center">
-                  <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
-                    <TrendingUp className="h-7 w-7 text-primary-foreground" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold">Track Your Impact</h3>
-                <p className="text-muted-foreground">
-                  Monitor your earned credits and estimated CO₂ offset on your 
-                  personal impact dashboard. See your contribution grow.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+                  <h3 className="text-xl font-semibold">{feature.title}</h3>
+                  <p className="text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </StaggeredGrid>
         </div>
       </section>
 
       {/* Stats Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
-            <div className="group">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
-                <Users className="h-8 w-8 text-primary-foreground" />
+          <StaggeredGrid 
+            className="grid grid-cols-2 md:grid-cols-3 gap-8 text-center"
+            staggerDelay={120}
+          >
+            {stats.map((stat, index) => (
+              <div 
+                key={stat.label} 
+                className={`group ${index === 2 ? 'col-span-2 md:col-span-1' : ''}`}
+              >
+                <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                  <stat.icon className="h-8 w-8 text-primary-foreground" />
+                </div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-primary to-earth bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
               </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-earth bg-clip-text text-transparent">10+</div>
-              <div className="text-sm text-muted-foreground mt-1">Micro-Jobs Available</div>
-            </div>
-            <div className="group">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
-                <Globe className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-earth bg-clip-text text-transparent">10</div>
-              <div className="text-sm text-muted-foreground mt-1">European Locations</div>
-            </div>
-            <div className="col-span-2 md:col-span-1 group">
-              <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
-                <Leaf className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-earth bg-clip-text text-transparent">450+</div>
-              <div className="text-sm text-muted-foreground mt-1">kg CO₂ Impact Potential</div>
-            </div>
-          </div>
+            ))}
+          </StaggeredGrid>
         </div>
       </section>
 

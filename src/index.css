@@ -44,6 +44,18 @@ All colors MUST be HSL.
     --success: 142 76% 36%;
     --warning: 45 93% 47%;
     --info: 197 71% 73%;
+    
+    /* Enhanced design tokens */
+    --primary-glow: 142 76% 45%;
+    --gradient-primary: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 45%));
+    --gradient-hero: linear-gradient(135deg, hsl(142 76% 36% / 0.05), hsl(197 71% 73% / 0.05));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(142 30% 98%));
+    --shadow-soft: 0 2px 8px hsl(145 8% 15% / 0.04);
+    --shadow-medium: 0 4px 16px hsl(145 8% 15% / 0.08);
+    --shadow-large: 0 8px 32px hsl(145 8% 15% / 0.12);
+    --shadow-glow: 0 0 24px hsl(142 76% 36% / 0.15);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --backdrop-blur: blur(12px);
 
     --sidebar-background: 0 0% 98%;
 
@@ -97,6 +109,19 @@ All colors MUST be HSL.
     --success: 142 76% 36%;
     --warning: 45 93% 47%;
     --info: 197 71% 73%;
+    
+    /* Enhanced design tokens - dark mode */
+    --primary-glow: 142 76% 45%;
+    --gradient-primary: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 45%));
+    --gradient-hero: linear-gradient(135deg, hsl(142 76% 36% / 0.08), hsl(197 71% 73% / 0.08));
+    --gradient-card: linear-gradient(180deg, hsl(145 18% 12%), hsl(145 18% 14%));
+    --shadow-soft: 0 2px 8px hsl(0 0% 0% / 0.2);
+    --shadow-medium: 0 4px 16px hsl(0 0% 0% / 0.3);
+    --shadow-large: 0 8px 32px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 24px hsl(142 76% 36% / 0.25);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --backdrop-blur: blur(12px);
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -115,5 +140,43 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .shadow-large {
+    box-shadow: var(--shadow-large);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .backdrop-blur-glass {
+    backdrop-filter: var(--backdrop-blur);
   }
 }

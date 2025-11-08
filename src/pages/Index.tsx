@@ -14,18 +14,19 @@ const Index = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
+      <section className="container mx-auto px-4 py-16 md:py-24 relative">
+        <div className="absolute inset-0 gradient-hero opacity-50 -z-10" />
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-medium shadow-soft hover:shadow-medium transition-smooth animate-fade-in">
             <Leaf className="h-4 w-4" />
             Climate Action Meets Economic Opportunity
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight bg-gradient-to-br from-foreground via-primary to-earth bg-clip-text text-transparent animate-fade-in">
             GreenWorks CodeX
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in">
             Climate-resilience micro-jobs and learning for vulnerable communities in Europe.
           </p>
 
@@ -38,8 +39,8 @@ const Index = () => {
             </Alert>
           )}
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button asChild size="lg" className="text-base">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in">
+            <Button asChild size="lg" variant="premium" className="text-base">
               <Link to="/regions">
                 <Globe className="mr-2 h-5 w-5" />
                 Explore European Regions
@@ -62,16 +63,19 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto px-4 py-16 bg-muted/30">
+      <section className="container mx-auto px-4 py-16 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/30 to-transparent -z-10" />
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">How GreenWorks CodeX Works</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+            How GreenWorks CodeX Works
+          </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-2 hover:border-primary transition-colors">
+            <Card className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
               <CardContent className="pt-6 text-center space-y-4">
                 <div className="flex justify-center">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Briefcase className="h-6 w-6 text-primary" />
+                  <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                    <Briefcase className="h-7 w-7 text-primary-foreground" />
                   </div>
                 </div>
                 <h3 className="text-xl font-semibold">Discover Micro-Jobs</h3>
@@ -82,11 +86,11 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:border-primary transition-colors">
+            <Card className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
               <CardContent className="pt-6 text-center space-y-4">
                 <div className="flex justify-center">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Award className="h-6 w-6 text-primary" />
+                  <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                    <Award className="h-7 w-7 text-primary-foreground" />
                   </div>
                 </div>
                 <h3 className="text-xl font-semibold">Learn & Earn</h3>
@@ -97,11 +101,11 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:border-primary transition-colors">
+            <Card className="gradient-card border-2 hover:border-primary transition-smooth hover:shadow-large group">
               <CardContent className="pt-6 text-center space-y-4">
                 <div className="flex justify-center">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-primary" />
+                  <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                    <TrendingUp className="h-7 w-7 text-primary-foreground" />
                   </div>
                 </div>
                 <h3 className="text-xl font-semibold">Track Your Impact</h3>
@@ -119,58 +123,68 @@ const Index = () => {
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-3xl font-bold text-foreground">10+</div>
-              <div className="text-sm text-muted-foreground">Micro-Jobs Available</div>
+            <div className="group">
+              <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                <Users className="h-8 w-8 text-primary-foreground" />
+              </div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-earth bg-clip-text text-transparent">10+</div>
+              <div className="text-sm text-muted-foreground mt-1">Micro-Jobs Available</div>
             </div>
-            <div>
-              <Globe className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-3xl font-bold text-foreground">10</div>
-              <div className="text-sm text-muted-foreground">European Locations</div>
+            <div className="group">
+              <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                <Globe className="h-8 w-8 text-primary-foreground" />
+              </div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-earth bg-clip-text text-transparent">10</div>
+              <div className="text-sm text-muted-foreground mt-1">European Locations</div>
             </div>
-            <div className="col-span-2 md:col-span-1">
-              <Leaf className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-3xl font-bold text-foreground">450+</div>
-              <div className="text-sm text-muted-foreground">kg CO₂ Impact Potential</div>
+            <div className="col-span-2 md:col-span-1 group">
+              <div className="h-16 w-16 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center shadow-medium group-hover:shadow-glow transition-smooth group-hover:scale-110">
+                <Leaf className="h-8 w-8 text-primary-foreground" />
+              </div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-primary to-earth bg-clip-text text-transparent">450+</div>
+              <div className="text-sm text-muted-foreground mt-1">kg CO₂ Impact Potential</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-16 bg-primary/5 rounded-2xl my-16">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold">Ready to Make an Impact?</h2>
-          <p className="text-lg text-muted-foreground">
-            {user 
-              ? "Continue your journey towards a more sustainable future while earning economic rewards."
-              : "Join GreenWorks CodeX today and start your journey towards a more sustainable future while earning economic rewards."
-            }
-          </p>
-          {user ? (
-            <Button asChild size="lg">
-              <Link to="/jobs">
-                <Briefcase className="mr-2 h-5 w-5" />
-                Browse Available Jobs
-              </Link>
-            </Button>
-          ) : (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg">
-                <Link to="/auth">
-                  <UserPlus className="mr-2 h-5 w-5" />
-                  Sign Up Free
+      <section className="container mx-auto px-4 my-16">
+        <div className="gradient-hero rounded-3xl p-12 shadow-large border border-primary/20 backdrop-blur-glass">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground via-primary to-earth bg-clip-text text-transparent">
+              Ready to Make an Impact?
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              {user 
+                ? "Continue your journey towards a more sustainable future while earning economic rewards."
+                : "Join GreenWorks CodeX today and start your journey towards a more sustainable future while earning economic rewards."
+              }
+            </p>
+            {user ? (
+              <Button asChild size="lg" variant="premium">
+                <Link to="/jobs">
+                  <Briefcase className="mr-2 h-5 w-5" />
+                  Browse Available Jobs
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/regions">
-                  <Globe className="mr-2 h-5 w-5" />
-                  Explore Regions
-                </Link>
-              </Button>
-            </div>
-          )}
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild size="lg" variant="premium">
+                  <Link to="/auth">
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    Sign Up Free
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/regions">
+                    <Globe className="mr-2 h-5 w-5" />
+                    Explore Regions
+                  </Link>
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>

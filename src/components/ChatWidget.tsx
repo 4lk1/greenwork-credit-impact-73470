@@ -140,9 +140,9 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
           className="fixed z-[99999] animate-fade-in cursor-move"
           style={{ 
             right: position.x === 0 ? '1.5rem' : 'auto',
-            bottom: position.y === 0 ? '5rem' : 'auto',
+            top: position.y === 0 ? '6rem' : 'auto',
             left: position.x !== 0 ? `calc(50% + ${position.x}px)` : 'auto',
-            top: position.y !== 0 ? `calc(50% + ${position.y}px)` : 'auto',
+            bottom: position.y !== 0 ? `calc(50% - ${position.y}px)` : 'auto',
             transform: position.x !== 0 || position.y !== 0 ? 'translate(-50%, -50%)' : 'none'
           }}
           onMouseDown={handleMouseDown}
@@ -168,9 +168,9 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
           className="fixed w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[99999] animate-scale-in"
           style={{ 
             right: position.x === 0 ? '1.5rem' : 'auto',
-            bottom: position.y === 0 ? '5rem' : 'auto',
+            top: position.y === 0 ? '6rem' : 'auto',
             left: position.x !== 0 ? `calc(50% + ${position.x}px)` : 'auto',
-            top: position.y !== 0 ? `calc(50% + ${position.y}px)` : 'auto',
+            bottom: position.y !== 0 ? `calc(50% - ${position.y}px)` : 'auto',
             transform: position.x !== 0 || position.y !== 0 ? 'translate(-50%, -50%)' : 'none'
           }}
         >

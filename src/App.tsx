@@ -9,7 +9,8 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageTransition } from "@/components/PageTransition";
 import { PageLoadingSkeleton } from "@/components/LoadingSkeleton";
-import { lazy, Suspense, memo } from "react";
+import { IntroScreen } from "@/components/IntroScreen";
+import { lazy, Suspense, memo, useState, useEffect } from "react";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -33,36 +34,59 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = memo(() => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AuthProvider>
-            <Suspense fallback={<PageLoadingSkeleton />}>
-              <Routes>
-                <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-                <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
-                <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
-                <Route path="/impact" element={<PageTransition><Impact /></PageTransition>} />
-                <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
-                <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
-                <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
-                <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
-              </Routes>
-            </Suspense>
-            </AuthProvider>
-          </BrowserRouter>
-        </TooltipProvider>
-      </LanguageProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-));
+const App = memo(() => {
+  const [showIntro, setShowIntro] = useState(true);
+  const [hasShownIntro, setHasShownIntro] = useState(false);
+
+  useEffect(() => {
+    const introShown = sessionStorage.getItem('introShown');
+    if (introShown) {
+      setShowIntro(false);
+      setHasShownIntro(true);
+    }
+  }, []);
+
+  const handleIntroComplete = () => {
+    sessionStorage.setItem('introShown', 'true');
+    setShowIntro(false);
+    setHasShownIntro(true);
+  };
+
+  if (showIntro && !hasShownIntro) {
+    return <IntroScreen onComplete={handleIntroComplete} />;
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <LanguageProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AuthProvider>
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <Routes>
+                  <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+                  <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
+                  <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
+                  <Route path="/impact" element={<PageTransition><Impact /></PageTransition>} />
+                  <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+                  <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
+                  <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
+                  <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+                </Routes>
+              </Suspense>
+              </AuthProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+});
 
 App.displayName = 'App';
 

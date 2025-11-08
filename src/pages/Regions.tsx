@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { StaggeredList } from "@/components/StaggeredGrid";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Region {
@@ -86,55 +85,53 @@ const Regions = () => {
             </p>
           </div>
 
-          <div className="bg-card rounded-lg border">
+          <div className="bg-card rounded-lg border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("regions.regionName")}</TableHead>
-                  <TableHead>{t("regions.country")}</TableHead>
-                  <TableHead>{t("regions.climateNeed")}</TableHead>
-                  <TableHead>{t("regions.inequality")}</TableHead>
-                  <TableHead>{t("regions.priorityScore")}</TableHead>
-                  <TableHead>{t("regions.recommendedCategory")}</TableHead>
-                  <TableHead className="text-right">{t("regions.actions")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t("regions.regionName")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t("regions.country")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t("regions.climateNeed")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t("regions.inequality")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t("regions.priorityScore")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{t("regions.recommendedCategory")}</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">{t("regions.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <StaggeredList
-                  items={regions.map((region) => (
-                    <TableRow 
-                      key={region.id}
-                      className="cursor-pointer hover:bg-muted/50 transition-smooth"
-                      onClick={() => navigate(`/regions/${region.id}`)}
-                    >
-                      <TableCell className="font-medium">{region.region_name}</TableCell>
-                      <TableCell>{region.iso_country}</TableCell>
-                      <TableCell>{getScoreBadge(region.climate_need_score)}</TableCell>
-                      <TableCell>{getScoreBadge(region.inequality_score)}</TableCell>
-                      <TableCell>
-                        <span className="font-semibold">{region.priority_score.toFixed(2)}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="border-primary/20 text-primary">
-                          {getCategoryLabel(region.recommended_microjob_category)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/regions/${region.id}`);
-                          }}
-                        >
-                          {t("regions.viewDetails")}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  staggerDelay={50}
-                />
+                {regions.map((region, index) => (
+                  <TableRow 
+                    key={region.id}
+                    className="cursor-pointer hover:bg-muted/50 transition-smooth animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                    onClick={() => navigate(`/regions/${region.id}`)}
+                  >
+                    <TableCell className="font-medium whitespace-nowrap">{region.region_name}</TableCell>
+                    <TableCell className="whitespace-nowrap">{region.iso_country}</TableCell>
+                    <TableCell>{getScoreBadge(region.climate_need_score)}</TableCell>
+                    <TableCell>{getScoreBadge(region.inequality_score)}</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <span className="font-semibold">{region.priority_score.toFixed(2)}</span>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <Badge variant="outline" className="border-primary/20 text-primary">
+                        {getCategoryLabel(region.recommended_microjob_category)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/regions/${region.id}`);
+                        }}
+                      >
+                        {t("regions.viewDetails")}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>

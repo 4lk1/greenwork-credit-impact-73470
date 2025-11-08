@@ -1,9 +1,10 @@
 import { NavLink } from "@/components/NavLink";
 import { Leaf, Briefcase, TrendingUp, Globe, Menu, X, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
@@ -17,6 +18,8 @@ import {
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>("");
 
   const navItems = [
     { to: "/", label: "Home", icon: Leaf },
@@ -25,9 +28,33 @@ export const Navigation = () => {
     { to: "/impact", label: "Impact", icon: TrendingUp },
   ];
 
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, avatar_url")
+        .eq("id", user?.id)
+        .single();
+
+      if (data) {
+        setUsername(data.username);
+        setAvatarUrl(data.avatar_url);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+
   const getUserInitials = () => {
-    if (!user?.email) return "U";
-    return user.email.charAt(0).toUpperCase();
+    if (username) return username.charAt(0).toUpperCase();
+    if (user?.email) return user.email.charAt(0).toUpperCase();
+    return "U";
   };
 
   return (
@@ -67,6 +94,7 @@ export const Navigation = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                     <Avatar className="h-9 w-9">
+                      <AvatarImage src={avatarUrl || undefined} alt={username || user?.email} />
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {getUserInitials()}
                       </AvatarFallback>

@@ -1,73 +1,198 @@
-# Welcome to your Lovable project
+# GreenWorks CodeX
 
-## Project info
+**A sustainability-focused web app for the International hAIckathon**
 
-**URL**: https://lovable.dev/projects/0b17e827-bf6a-4fbe-a918-f1f1b1af8125
+Team: **CodeX** | Hub: **TechSpace Tirana**
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🌍 What is GreenWorks CodeX?
 
-**Use Lovable**
+GreenWorks CodeX connects people in climate-vulnerable or low-income communities across Europe with **climate-resilience micro-jobs**. Users can:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0b17e827-bf6a-4fbe-a918-f1f1b1af8125) and start prompting.
+- **Discover** simple green-economy opportunities (tree planting, solar maintenance, water harvesting, etc.)
+- **Learn** through interactive training modules with quizzes
+- **Track** both economic rewards (credits) and environmental impact (estimated CO₂ offset)
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🎯 Project Goal
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Help communities access meaningful climate work while building skills and earning income. Each completed micro-job contributes to:
+- **Economic benefit**: Earn credits for completed work
+- **Climate impact**: Track estimated CO₂ reductions and resilience improvements
+- **Skill development**: Learn through structured training and assessments
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🏗️ Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend**: React 18, TypeScript, Vite
+- **UI Components**: shadcn/ui, Tailwind CSS
+- **Backend**: Lovable Cloud (Supabase)
+- **Database**: PostgreSQL
+- **Charts**: Recharts
+- **Routing**: React Router v6
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📊 Data Models
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Users
+- Basic profile information and location
+
+### Micro Jobs
+- Title, description, category, difficulty level
+- Duration, reward credits, CO₂ impact estimate
+- Location and active status
+
+### Training Modules
+- Structured learning content for each job
+- Learning objectives and safety guidelines
+
+### Quiz Questions
+- Multiple-choice questions to assess learning
+- Correct answer tracking
+
+### Job Completions
+- User progress tracking
+- Quiz scores, earned credits, CO₂ impact
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ (recommended: install with [nvm](https://github.com/nvm-sh/nvm))
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd <project-directory>
+
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 📱 App Features
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Home Page
+- Clear value proposition and mission statement
+- Quick access to browse jobs and view impact
+- Statistics showcasing available opportunities
 
-## What technologies are used for this project?
+### Micro-Jobs Browser
+- Filter by category (tree planting, solar maintenance, water harvesting, agroforestry, home insulation)
+- Filter by difficulty level (beginner, intermediate, advanced)
+- View job details including location, duration, rewards, and CO₂ impact
 
-This project is built with:
+### Job Detail & Training
+- Complete job description and requirements
+- Interactive training module with comprehensive content
+- Quiz with instant feedback (70% required to pass)
+- Job completion flow with reward confirmation
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Impact Dashboard
+- Aggregate statistics: total jobs, credits, CO₂ offset, average quiz score
+- Visual charts showing impact by category
+- Timeline of credits earned
+- Recent completion history
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/0b17e827-bf6a-4fbe-a918-f1f1b1af8125) and click on Share -> Publish.
+## 🌱 Seed Data
 
-## Can I connect a custom domain to my Lovable project?
+The app comes pre-loaded with:
+- **10 diverse micro-jobs** across 5 categories
+- Jobs located in various European cities (Tirana, Athens, Rome, Barcelona, Paris, etc.)
+- **Training modules** with detailed learning content
+- **Quiz questions** (3-5 per job) with correct answers
 
-Yes, you can!
+Categories included:
+- 🌳 **Tree Planting**: Urban and mountain reforestation
+- ☀️ **Solar Maintenance**: Panel cleaning and system maintenance
+- 💧 **Water Harvesting**: Rainwater systems and bioswales
+- 🌾 **Agroforestry**: Food forests and orchards
+- 🏠 **Home Insulation**: Energy-efficient upgrades
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🎨 Design System
+
+The app uses a **sustainability-focused design** with:
+- **Primary color**: Fresh emerald green (#10b981)
+- **Secondary colors**: Earth tones and sky blues
+- **Semantic tokens**: All colors defined in design system (no hardcoded values)
+- **Responsive design**: Mobile-first approach
+- **Accessibility**: Semantic HTML and ARIA labels
+
+---
+
+## 🔐 Authentication & Security
+
+- Currently configured for **demo mode** (no authentication required)
+- Row-Level Security (RLS) policies enabled on all tables
+- Public read access for browsing
+- Public write access for job completions (demo purposes)
+
+For production deployment, implement proper user authentication.
+
+---
+
+## 📈 Future Enhancements
+
+- User authentication and personal profiles
+- Real-time job availability based on location
+- Community features and social sharing
+- Integration with payment systems for credits
+- Mobile app version
+- Multi-language support
+- Advanced impact metrics and certifications
+
+---
+
+## 🤝 Contributing
+
+This is a hackathon project, but contributions are welcome! Areas for improvement:
+- Additional micro-job categories
+- Enhanced training content
+- More sophisticated impact calculations
+- User onboarding improvements
+- Accessibility enhancements
+
+---
+
+## 📄 License
+
+Built for the International hAIckathon 2025
+
+---
+
+## 🙏 Acknowledgments
+
+- **TechSpace Tirana** for hosting
+- **International hAIckathon** organizers
+- Open-source community for amazing tools and libraries
+
+---
+
+## 📞 Contact
+
+**Team CodeX**  
+TechSpace Tirana Hub
+
+For questions or feedback about GreenWorks CodeX, please reach out through the hackathon channels.
+
+---
+
+**Built with 💚 for a sustainable future**

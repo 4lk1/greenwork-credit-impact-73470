@@ -22,7 +22,7 @@ export type Database = {
           id: string
           microjob_id: string
           quiz_score_percent: number
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           completed_at?: string | null
@@ -31,7 +31,7 @@ export type Database = {
           id?: string
           microjob_id: string
           quiz_score_percent: number
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           completed_at?: string | null
@@ -40,7 +40,7 @@ export type Database = {
           id?: string
           microjob_id?: string
           quiz_score_percent?: number
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -66,7 +66,7 @@ export type Database = {
           last_updated: string
           microjob_id: string
           quiz_answers: Json
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
@@ -74,7 +74,7 @@ export type Database = {
           last_updated?: string
           microjob_id: string
           quiz_answers?: Json
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -82,7 +82,7 @@ export type Database = {
           last_updated?: string
           microjob_id?: string
           quiz_answers?: Json
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -125,6 +125,30 @@ export type Database = {
           location?: string
           reward_credits?: number
           title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string
         }
         Relationships: []
       }

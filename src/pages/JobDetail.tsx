@@ -56,16 +56,6 @@ const JobDetail = () => {
   const [isSaving, setIsSaving] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Get or create session ID
-  const getSessionId = () => {
-    let sessionId = localStorage.getItem('session_id');
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      localStorage.setItem('session_id', sessionId);
-    }
-    return sessionId;
-  };
-
   useEffect(() => {
     if (id) {
       fetchJobData();
@@ -95,7 +85,14 @@ const JobDetail = () => {
 
   const fetchJobData = async () => {
     try {
-      const sessionId = getSessionId();
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("Please log in to access this job");
+        navigate("/auth");
+        return;
+      }
 
       // Fetch job
       const { data: jobData, error: jobError } = await supabase
@@ -132,7 +129,7 @@ const JobDetail = () => {
         .from("job_progress")
         .select("*")
         .eq("microjob_id", id)
-        .eq("user_id", sessionId)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (progressData) {
@@ -148,7 +145,7 @@ const JobDetail = () => {
           .from("job_progress")
           .insert({
             microjob_id: id,
-            user_id: sessionId,
+            user_id: user.id,
             quiz_answers: {},
           })
           .select()
@@ -206,7 +203,16 @@ const JobDetail = () => {
 
     setIsCompleting(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("Please log in to complete this job");
+        navigate("/auth");
+        return;
+      }
+
       const { error } = await supabase.from("job_completions").insert({
+        user_id: user.id,
         microjob_id: job.id,
         quiz_score_percent: score,
         earned_credits: job.reward_credits,

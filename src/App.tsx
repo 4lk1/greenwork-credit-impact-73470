@@ -11,6 +11,7 @@ import JobDetail from "./pages/JobDetail";
 import Impact from "./pages/Impact";
 import Regions from "./pages/Regions";
 import RegionDetail from "./pages/RegionDetail";
+import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
             <Route path="/jobs/:id" element={<ProtectedRoute><JobDetail /></ProtectedRoute>} />
             <Route path="/impact" element={<ProtectedRoute><Impact /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/regions" element={<Regions />} />
             <Route path="/regions/:id" element={<RegionDetail />} />
             <Route path="/auth" element={<Auth />} />

@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -19,14 +21,15 @@ import {
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
 
   const navItems = [
-    { to: "/", label: "Home", icon: Leaf },
-    { to: "/jobs", label: "Micro-Jobs", icon: Briefcase },
-    { to: "/regions", label: "Regions", icon: Globe },
-    { to: "/impact", label: "Impact", icon: TrendingUp },
+    { to: "/", label: t("nav.home"), icon: Leaf },
+    { to: "/jobs", label: t("nav.jobs"), icon: Briefcase },
+    { to: "/regions", label: t("nav.regions"), icon: Globe },
+    { to: "/impact", label: t("nav.impact"), icon: TrendingUp },
   ];
 
   useEffect(() => {
@@ -90,6 +93,7 @@ export const Navigation = () => {
               ))}
             </div>
             
+            <LanguageSelector />
             <ThemeToggle />
             
             {user ? (

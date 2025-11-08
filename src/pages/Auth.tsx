@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { Loader2, Leaf } from "lucide-react";
 import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const emailSchema = z.string().email("Invalid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -28,6 +30,7 @@ const signupSchema = z.object({
 const Auth = () => {
   const navigate = useNavigate();
   const { signIn, signUp, user } = useAuth();
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
 
   // Login form state
@@ -112,6 +115,9 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <LanguageSelector />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
@@ -125,14 +131,14 @@ const Auth = () => {
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="login">{t("auth.login")}</TabsTrigger>
+                <TabsTrigger value="signup">{t("auth.signup")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
+                    <Label htmlFor="login-email">{t("auth.email")}</Label>
                     <Input
                       id="login-email"
                       type="email"
@@ -144,7 +150,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
+                    <Label htmlFor="login-password">{t("auth.password")}</Label>
                     <Input
                       id="login-password"
                       type="password"
@@ -163,17 +169,17 @@ const Auth = () => {
                       disabled={isLoading}
                     />
                     <Label htmlFor="remember-me" className="text-sm font-normal cursor-pointer">
-                      Remember me
+                      {t("auth.rememberMe")}
                     </Label>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Logging in...
+                        {t("auth.loggingIn")}
                       </>
                     ) : (
-                      "Login"
+                      t("auth.login")
                     )}
                   </Button>
                 </form>
@@ -182,7 +188,7 @@ const Auth = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-username">Username</Label>
+                    <Label htmlFor="signup-username">{t("auth.username")}</Label>
                     <Input
                       id="signup-username"
                       type="text"
@@ -194,7 +200,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t("auth.email")}</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -206,7 +212,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">{t("auth.password")}</Label>
                     <Input
                       id="signup-password"
                       type="password"
@@ -220,7 +226,7 @@ const Auth = () => {
                     <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                    <Label htmlFor="signup-confirm-password">{t("auth.confirmPassword")}</Label>
                     <Input
                       id="signup-confirm-password"
                       type="password"
@@ -240,10 +246,10 @@ const Auth = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating account...
+                        {t("auth.creatingAccount")}
                       </>
                     ) : (
-                      "Sign Up"
+                      t("auth.signup")
                     )}
                   </Button>
                 </form>

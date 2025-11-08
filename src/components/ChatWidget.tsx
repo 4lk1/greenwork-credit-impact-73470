@@ -137,7 +137,7 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
       {/* Chat Bubble Button */}
       {!isOpen && (
         <div 
-          className="fixed z-[99999] animate-fade-in cursor-move"
+          className="absolute z-[99999] animate-fade-in cursor-move"
           style={{ 
             right: position.x === 0 ? '1rem' : 'auto',
             bottom: position.y === 0 ? '1rem' : 'auto',
@@ -165,7 +165,7 @@ export const ChatWidget = ({ context }: ChatWidgetProps) => {
       {/* Chat Panel */}
       {isOpen && (
         <Card 
-          className="fixed w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[99999] animate-scale-in"
+          className="absolute w-[calc(100vw-2rem)] max-w-[400px] h-[70vh] md:h-[600px] max-h-[600px] shadow-large border-2 border-primary/20 flex flex-col z-[99999] animate-scale-in"
           style={{ 
             right: position.x === 0 ? '1rem' : 'auto',
             bottom: position.y === 0 ? '1rem' : 'auto',

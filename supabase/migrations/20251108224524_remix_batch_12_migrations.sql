@@ -1,3 +1,5 @@
+
+-- Migration: 20251108155515
 -- Create users table (public profiles)
 CREATE TABLE public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -260,3 +262,426 @@ FROM public.training_modules WHERE title = 'Agroforestry & Food Forests';
 INSERT INTO public.quiz_questions (training_module_id, question_text, option_a, option_b, option_c, option_d, correct_option)
 SELECT id, 'Which benefit is NOT provided by agroforestry?', 'Food security', 'Carbon sequestration', 'Reduced biodiversity', 'Community resilience', 'c'
 FROM public.training_modules WHERE title = 'Agroforestry & Food Forests';
+
+-- Migration: 20251108170130
+-- Create regions table to store European region data with priority scores
+CREATE TABLE public.regions (
+  id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  region_id integer NOT NULL UNIQUE,
+  iso_country text NOT NULL,
+  region_name text NOT NULL,
+  lat numeric NOT NULL,
+  lon numeric NOT NULL,
+  avg_download_mbps numeric NOT NULL,
+  avg_upload_mbps numeric NOT NULL,
+  avg_latency_ms numeric NOT NULL,
+  network_type text NOT NULL,
+  dominant_land_cover text NOT NULL,
+  climate_need_score numeric NOT NULL,
+  inequality_score numeric NOT NULL,
+  priority_score numeric NOT NULL,
+  recommended_microjob_category text NOT NULL,
+  source_connectivity_dataset text NOT NULL,
+  source_landcover_dataset text NOT NULL,
+  created_at timestamp with time zone DEFAULT now()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.regions ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for public read access
+CREATE POLICY "Public read access for regions"
+ON public.regions
+FOR SELECT
+USING (true);
+
+-- Create indexes for better query performance
+CREATE INDEX idx_regions_iso_country ON public.regions(iso_country);
+CREATE INDEX idx_regions_priority_score ON public.regions(priority_score DESC);
+CREATE INDEX idx_regions_recommended_category ON public.regions(recommended_microjob_category);
+
+-- Migration: 20251108174534
+-- Create function to update timestamps if it doesn't exist
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.last_updated = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SET search_path = public;
+
+-- Create job_progress table to track quiz attempts
+CREATE TABLE public.job_progress (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID,
+  microjob_id UUID NOT NULL,
+  quiz_answers JSONB NOT NULL DEFAULT '{}'::jsonb,
+  last_updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE public.job_progress ENABLE ROW LEVEL SECURITY;
+
+-- Public read/write access (can be restricted later when auth is added)
+CREATE POLICY "Public read access for job_progress" 
+ON public.job_progress 
+FOR SELECT 
+USING (true);
+
+CREATE POLICY "Public insert access for job_progress" 
+ON public.job_progress 
+FOR INSERT 
+WITH CHECK (true);
+
+CREATE POLICY "Public update access for job_progress" 
+ON public.job_progress 
+FOR UPDATE 
+USING (true);
+
+CREATE POLICY "Public delete access for job_progress" 
+ON public.job_progress 
+FOR DELETE 
+USING (true);
+
+-- Create index for faster lookups
+CREATE INDEX idx_job_progress_microjob ON public.job_progress(microjob_id);
+
+-- Trigger to update last_updated timestamp
+CREATE TRIGGER update_job_progress_updated_at
+BEFORE UPDATE ON public.job_progress
+FOR EACH ROW
+EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Migration: 20251108175013
+-- Create profiles table linked to auth.users
+CREATE TABLE public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT UNIQUE NOT NULL,
+  avatar_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Profiles are viewable by everyone
+CREATE POLICY "Profiles are viewable by everyone" 
+ON public.profiles 
+FOR SELECT 
+USING (true);
+
+-- Users can update their own profile
+CREATE POLICY "Users can update own profile" 
+ON public.profiles 
+FOR UPDATE 
+USING (auth.uid() = id);
+
+-- Users can insert their own profile
+CREATE POLICY "Users can insert own profile" 
+ON public.profiles 
+FOR INSERT 
+WITH CHECK (auth.uid() = id);
+
+-- Create function to handle new user signups
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, username, avatar_url)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'avatar_url'
+  );
+  RETURN NEW;
+END;
+$$;
+
+-- Trigger to create profile on user signup
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Update job_completions to require user_id
+ALTER TABLE public.job_completions ALTER COLUMN user_id SET NOT NULL;
+
+-- Update job_completions RLS policies
+DROP POLICY IF EXISTS "Public insert access for job_completions" ON public.job_completions;
+DROP POLICY IF EXISTS "Public read access for job_completions" ON public.job_completions;
+
+CREATE POLICY "Users can view own completions" 
+ON public.job_completions 
+FOR SELECT 
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own completions" 
+ON public.job_completions 
+FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Public can view all completions for stats"
+ON public.job_completions
+FOR SELECT
+USING (true);
+
+-- Update job_progress to require user_id
+ALTER TABLE public.job_progress ALTER COLUMN user_id SET NOT NULL;
+
+-- Update job_progress RLS policies
+DROP POLICY IF EXISTS "Public read access for job_progress" ON public.job_progress;
+DROP POLICY IF EXISTS "Public insert access for job_progress" ON public.job_progress;
+DROP POLICY IF EXISTS "Public update access for job_progress" ON public.job_progress;
+DROP POLICY IF EXISTS "Public delete access for job_progress" ON public.job_progress;
+
+CREATE POLICY "Users can view own progress" 
+ON public.job_progress 
+FOR SELECT 
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own progress" 
+ON public.job_progress 
+FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own progress" 
+ON public.job_progress 
+FOR UPDATE 
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own progress" 
+ON public.job_progress 
+FOR DELETE 
+USING (auth.uid() = user_id);
+
+-- Add trigger for profiles updated_at
+CREATE TRIGGER update_profiles_updated_at
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Migration: 20251108180107
+-- Create avatars storage bucket
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', true);
+
+-- Allow authenticated users to upload their own avatar
+CREATE POLICY "Users can upload own avatar"
+ON storage.objects
+FOR INSERT
+WITH CHECK (
+  bucket_id = 'avatars' 
+  AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Allow users to update their own avatar
+CREATE POLICY "Users can update own avatar"
+ON storage.objects
+FOR UPDATE
+USING (
+  bucket_id = 'avatars' 
+  AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Allow users to delete their own avatar
+CREATE POLICY "Users can delete own avatar"
+ON storage.objects
+FOR DELETE
+USING (
+  bucket_id = 'avatars' 
+  AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Allow public read access to avatars
+CREATE POLICY "Avatars are publicly accessible"
+ON storage.objects
+FOR SELECT
+USING (bucket_id = 'avatars');
+
+-- Migration: 20251108180413
+-- Fix the update_updated_at_column function to use correct field name
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SET search_path = public;
+
+-- Migration: 20251108183631
+-- Create verification codes table
+CREATE TABLE public.verification_codes (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT NOT NULL,
+  code TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('signup', 'login')),
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  verified BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.verification_codes ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow anyone to insert verification codes
+CREATE POLICY "Anyone can create verification codes"
+ON public.verification_codes
+FOR INSERT
+WITH CHECK (true);
+
+-- Create policy to allow anyone to read their own codes
+CREATE POLICY "Users can read their own verification codes"
+ON public.verification_codes
+FOR SELECT
+USING (true);
+
+-- Create policy to allow anyone to update verification codes
+CREATE POLICY "Anyone can update verification codes"
+ON public.verification_codes
+FOR UPDATE
+USING (true);
+
+-- Create index for faster lookups
+CREATE INDEX idx_verification_codes_email_code ON public.verification_codes(email, code, type);
+CREATE INDEX idx_verification_codes_expires_at ON public.verification_codes(expires_at);
+
+-- Create function to clean up expired codes
+CREATE OR REPLACE FUNCTION public.cleanup_expired_verification_codes()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  DELETE FROM public.verification_codes
+  WHERE expires_at < now() - interval '1 hour';
+END;
+$$;
+
+-- Migration: 20251108201830
+-- Fix security issue 1: verification_codes email exposure
+-- Drop the existing insecure SELECT policy
+DROP POLICY IF EXISTS "Users can read their own verification codes" ON public.verification_codes;
+
+-- Create secure SELECT policy that only allows users to see codes for their own email
+CREATE POLICY "Users can read their own verification codes"
+ON public.verification_codes
+FOR SELECT
+USING (email = auth.jwt()->>'email');
+
+-- Fix security issue 2: users table public exposure
+-- Drop the existing public read policy
+DROP POLICY IF EXISTS "Public read access for users" ON public.users;
+
+-- Create secure SELECT policy that only allows users to see their own data
+CREATE POLICY "Users can read their own data"
+ON public.users
+FOR SELECT
+USING (auth.uid() = id);
+
+-- Fix security issue 3: verification_codes unrestricted updates
+-- Drop the existing insecure UPDATE policy
+DROP POLICY IF EXISTS "Anyone can update verification codes" ON public.verification_codes;
+
+-- Create secure UPDATE policy that only allows users to update their own codes
+CREATE POLICY "Users can update their own verification codes"
+ON public.verification_codes
+FOR UPDATE
+USING (email = auth.jwt()->>'email');
+
+-- Migration: 20251108202913
+-- Fix security issue: Remove public read access to job_completions
+-- Users should only see their own completion data
+DROP POLICY IF EXISTS "Public can view all completions for stats" ON job_completions;
+
+-- Fix security issue: Remove public insert access to verification_codes
+-- This prevents spam and abuse of the verification system
+DROP POLICY IF EXISTS "Anyone can create verification codes" ON verification_codes;
+
+-- Create a public view for anonymized aggregate statistics
+-- This provides the stats functionality without exposing individual user data
+CREATE OR REPLACE VIEW public.job_stats AS
+SELECT 
+  COUNT(*) as total_jobs,
+  SUM(earned_credits) as total_credits,
+  SUM(estimated_co2_kg_impact) as total_co2_impact,
+  AVG(quiz_score_percent) as avg_score
+FROM job_completions;
+
+-- Grant select access on the view to authenticated users
+GRANT SELECT ON public.job_stats TO authenticated;
+
+-- Migration: 20251108202926
+-- Fix security definer view issue
+-- Use SECURITY INVOKER so the view respects the querying user's permissions
+DROP VIEW IF EXISTS public.job_stats;
+
+CREATE VIEW public.job_stats 
+WITH (security_invoker = true)
+AS
+SELECT 
+  COUNT(*) as total_jobs,
+  SUM(earned_credits) as total_credits,
+  SUM(estimated_co2_kg_impact) as total_co2_impact,
+  AVG(quiz_score_percent) as avg_score
+FROM job_completions;
+
+-- Grant select access on the view to authenticated users
+GRANT SELECT ON public.job_stats TO authenticated;
+
+-- Migration: 20251108215816
+-- Prevent users from inserting verification codes directly
+-- Only edge functions with SERVICE_ROLE_KEY can insert (they bypass RLS)
+CREATE POLICY "Prevent direct insertion of verification codes"
+ON public.verification_codes
+FOR INSERT
+WITH CHECK (false);
+
+-- Prevent users from deleting verification codes
+-- Only edge functions or database functions can manage deletion
+CREATE POLICY "Prevent deletion of verification codes"
+ON public.verification_codes
+FOR DELETE
+USING (false);
+
+-- Migration: 20251108220836
+-- Create quiz_scores table to track user quiz performance
+CREATE TABLE public.quiz_scores (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  topic TEXT NOT NULL,
+  score INTEGER NOT NULL CHECK (score >= 0),
+  total_questions INTEGER NOT NULL CHECK (total_questions > 0),
+  difficulty TEXT NOT NULL CHECK (difficulty IN ('beginner', 'intermediate', 'advanced')),
+  percentage NUMERIC GENERATED ALWAYS AS (ROUND((score::NUMERIC / total_questions::NUMERIC) * 100, 2)) STORED,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+-- Create index for faster leaderboard queries
+CREATE INDEX idx_quiz_scores_user_id ON public.quiz_scores(user_id);
+CREATE INDEX idx_quiz_scores_percentage ON public.quiz_scores(percentage DESC);
+CREATE INDEX idx_quiz_scores_created_at ON public.quiz_scores(created_at DESC);
+
+-- Enable RLS
+ALTER TABLE public.quiz_scores ENABLE ROW LEVEL SECURITY;
+
+-- Users can insert their own scores
+CREATE POLICY "Users can insert own quiz scores"
+ON public.quiz_scores
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Everyone can view all scores (public leaderboard)
+CREATE POLICY "Public read access for quiz scores"
+ON public.quiz_scores
+FOR SELECT
+USING (true);
+
+-- Users can view their own scores
+CREATE POLICY "Users can view own quiz scores"
+ON public.quiz_scores
+FOR SELECT
+USING (auth.uid() = user_id);

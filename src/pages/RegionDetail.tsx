@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Wifi, Network, Mountain, ArrowLeft, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 interface Region {
   id: string;
   region_id: number;
@@ -40,6 +42,7 @@ interface MicroJob {
 const RegionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [region, setRegion] = useState<Region | null>(null);
   const [matchingJobs, setMatchingJobs] = useState<MicroJob[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,7 +141,7 @@ const RegionDetail = () => {
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Regions
+            {t("regionDetail.backToRegions")}
           </Button>
 
           <div className="mb-8">
@@ -151,19 +154,19 @@ const RegionDetail = () => {
                     {region.iso_country}
                   </div>
                   <div>
-                    Coordinates: {region.lat.toFixed(2)}°N, {region.lon.toFixed(2)}°E
+                    {t("regionDetail.coordinates")}: {region.lat.toFixed(2)}°N, {region.lon.toFixed(2)}°E
                   </div>
                 </div>
               </div>
               <Badge className="text-lg px-4 py-2">
-                Priority: {region.priority_score.toFixed(2)}
+                {t("regionDetail.priority")}: {region.priority_score.toFixed(2)}
               </Badge>
             </div>
 
             <Card className="bg-info/5 border-info/20">
               <CardContent className="pt-6">
                 <p className="text-sm leading-relaxed">
-                  <strong>About Priority Scores:</strong> This region's priority score combines climate need and inequality to guide where climate-resilience micro-jobs can have the highest impact. Higher scores indicate areas where interventions can create the most significant positive change for vulnerable communities facing climate challenges.
+                  <strong>{t("regionDetail.aboutPriority").split(':')[0]}:</strong> {t("regionDetail.aboutPriority").split(':')[1]}
                 </p>
               </CardContent>
             </Card>

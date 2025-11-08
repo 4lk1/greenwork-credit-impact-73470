@@ -11,6 +11,8 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, MapPin, Clock, Award, Leaf, CheckCircle2, AlertCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 interface MicroJob {
   id: string;
   title: string;
@@ -43,6 +45,7 @@ interface QuizQuestion {
 const JobDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [job, setJob] = useState<MicroJob | null>(null);
   const [training, setTraining] = useState<TrainingModule | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -257,7 +260,7 @@ const JobDetail = () => {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-8">
-          <p>Job not found</p>
+          <p>{t("jobDetail.jobNotFound")}</p>
         </div>
       </div>
     );
@@ -289,29 +292,29 @@ const JobDetail = () => {
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <div className="text-xs text-muted-foreground">Location</div>
+                    <div className="text-xs text-muted-foreground">{t("jobDetail.location")}</div>
                     <div className="font-medium">{job.location}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <div className="text-xs text-muted-foreground">Duration</div>
-                    <div className="font-medium">{job.estimated_duration_minutes} min</div>
+                    <div className="text-xs text-muted-foreground">{t("jobDetail.duration")}</div>
+                    <div className="font-medium">{job.estimated_duration_minutes} {t("jobDetail.min")}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className="h-5 w-5 text-warning" />
                   <div>
-                    <div className="text-xs text-muted-foreground">Reward</div>
-                    <div className="font-medium">{job.reward_credits} credits</div>
+                    <div className="text-xs text-muted-foreground">{t("jobDetail.reward")}</div>
+                    <div className="font-medium">{job.reward_credits} {t("jobs.credits")}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Leaf className="h-5 w-5 text-success" />
                   <div>
-                    <div className="text-xs text-muted-foreground">CO₂ Impact</div>
-                    <div className="font-medium">{job.estimated_co2_kg_impact} kg</div>
+                    <div className="text-xs text-muted-foreground">{t("jobDetail.co2Impact")}</div>
+                    <div className="font-medium">{job.estimated_co2_kg_impact} {t("jobDetail.kg")}</div>
                   </div>
                 </div>
               </div>
@@ -321,8 +324,8 @@ const JobDetail = () => {
           {/* Training Module */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Learning</CardTitle>
-              <CardDescription>Complete this training before taking the quiz</CardDescription>
+              <CardTitle className="text-2xl">{t("jobDetail.learning")}</CardTitle>
+              <CardDescription>{t("jobDetail.learningDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="prose prose-sm max-w-none">
@@ -331,7 +334,7 @@ const JobDetail = () => {
 
               {training.learning_objectives && training.learning_objectives.length > 0 && (
                 <div>
-                  <h4 className="font-semibold mb-2">Learning Objectives:</h4>
+                  <h4 className="font-semibold mb-2">{t("jobDetail.learningObjectives")}</h4>
                   <ul className="space-y-1">
                     {training.learning_objectives.map((obj, idx) => (
                       <li key={idx} className="flex items-start gap-2">
@@ -350,16 +353,16 @@ const JobDetail = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-2xl">Knowledge Quiz</CardTitle>
+                  <CardTitle className="text-2xl">{t("jobDetail.knowledgeQuiz")}</CardTitle>
                   <CardDescription>
-                    Pass with 60% or higher to complete this micro-job
+                    {t("jobDetail.quizDesc")}
                   </CardDescription>
                 </div>
                 {lastSaved && !showResults && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Save className={`h-4 w-4 ${isSaving ? 'animate-pulse' : ''}`} />
                     <span>
-                      {isSaving ? 'Saving...' : `Saved ${new Date(lastSaved).toLocaleTimeString()}`}
+                      {isSaving ? t("common.saving") : `${t("common.save")} ${new Date(lastSaved).toLocaleTimeString()}`}
                     </span>
                   </div>
                 )}
@@ -422,7 +425,7 @@ const JobDetail = () => {
                   className="w-full"
                   size="lg"
                 >
-                  Submit Quiz
+                  {t("jobDetail.submitQuiz")}
                 </Button>
               ) : (
                 <div className="space-y-4">
@@ -434,13 +437,13 @@ const JobDetail = () => {
                         {isPassing ? (
                           <div className="flex items-center justify-center gap-2 text-success">
                             <CheckCircle2 className="h-5 w-5" />
-                            <span className="font-medium">Passed! You can complete this job.</span>
+                            <span className="font-medium">{t("jobDetail.passed")}</span>
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-2 text-destructive">
                             <AlertCircle className="h-5 w-5" />
                             <span className="font-medium">
-                              Not quite there. Review the training and try again.
+                              {t("jobDetail.notPassed")}
                             </span>
                           </div>
                         )}
@@ -458,12 +461,12 @@ const JobDetail = () => {
                       {isCompleting ? (
                         <>
                           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Completing Job...
+                          {t("jobDetail.completingJob")}
                         </>
                       ) : (
                         <>
                           <CheckCircle2 className="mr-2 h-5 w-5" />
-                          Complete Job & Earn {job.reward_credits} Credits
+                          {t("jobDetail.completeJob")} {job.reward_credits} {t("jobs.credits")}
                         </>
                       )}
                     </Button>
@@ -477,7 +480,7 @@ const JobDetail = () => {
                       className="w-full"
                       size="lg"
                     >
-                      Retry Quiz
+                      {t("jobDetail.retryQuiz")}
                     </Button>
                   )}
                 </div>

@@ -123,9 +123,9 @@ const Auth = () => {
           <div className="flex items-center justify-center mb-4">
             <Leaf className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-3xl">GreenWorks CodeX</CardTitle>
+          <CardTitle className="text-3xl">{t("auth.appName")}</CardTitle>
           <CardDescription>
-            Sign in to track your climate-resilience contributions
+            {t("auth.appDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -223,7 +223,7 @@ const Auth = () => {
                       disabled={isLoading}
                       minLength={6}
                     />
-                    <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+                    <p className="text-xs text-muted-foreground">{t("auth.minChars")}</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-confirm-password">{t("auth.confirmPassword")}</Label>
@@ -239,7 +239,7 @@ const Auth = () => {
                       className={signupPassword && signupConfirmPassword && signupPassword !== signupConfirmPassword ? "border-destructive" : ""}
                     />
                     {signupPassword && signupConfirmPassword && signupPassword !== signupConfirmPassword && (
-                      <p className="text-xs text-destructive">Passwords don't match</p>
+                      <p className="text-xs text-destructive">{t("auth.passwordsNoMatch")}</p>
                     )}
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>

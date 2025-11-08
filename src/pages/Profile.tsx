@@ -30,8 +30,11 @@ interface UserStats {
   totalCO2Impact: number;
 }
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 const Profile = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -210,9 +213,9 @@ const Profile = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto space-y-8">
           <div>
-            <h1 className="text-3xl font-bold">Profile Settings</h1>
+            <h1 className="text-3xl font-bold">{t("profile.title")}</h1>
             <p className="text-muted-foreground mt-2">
-              Manage your account information and preferences
+              {t("profile.subtitle")}
             </p>
           </div>
 
@@ -226,7 +229,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{stats.totalJobs}</p>
-                    <p className="text-xs text-muted-foreground">Jobs Completed</p>
+                    <p className="text-xs text-muted-foreground">{t("profile.jobsCompleted")}</p>
                   </div>
                 </div>
               </CardContent>
@@ -240,7 +243,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{stats.totalCredits}</p>
-                    <p className="text-xs text-muted-foreground">Credits Earned</p>
+                    <p className="text-xs text-muted-foreground">{t("profile.creditsEarned")}</p>
                   </div>
                 </div>
               </CardContent>
@@ -254,7 +257,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{stats.totalCO2Impact}</p>
-                    <p className="text-xs text-muted-foreground">kg CO₂ Impact</p>
+                    <p className="text-xs text-muted-foreground">{t("profile.co2Impact")}</p>
                   </div>
                 </div>
               </CardContent>
@@ -263,9 +266,9 @@ const Profile = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
+              <CardTitle>{t("profile.profileInfo")}</CardTitle>
               <CardDescription>
-                Update your username and avatar to personalize your account
+                {t("profile.profileDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -279,9 +282,9 @@ const Profile = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <h3 className="font-semibold">Profile Picture</h3>
+                    <h3 className="font-semibold">{t("profile.profilePicture")}</h3>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Upload an image (max 2MB)
+                      {t("profile.uploadImage")}
                     </p>
                     <input
                       ref={fileInputRef}
@@ -300,12 +303,12 @@ const Profile = () => {
                       {uploading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Uploading...
+                          {t("common.uploading")}
                         </>
                       ) : (
                         <>
                           <Upload className="mr-2 h-4 w-4" />
-                          Upload Image
+                          {t("profile.uploadBtn")}
                         </>
                       )}
                     </Button>
@@ -314,7 +317,7 @@ const Profile = () => {
 
                 {/* Email (read-only) */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -326,13 +329,13 @@ const Profile = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Your email address cannot be changed
+                    {t("profile.emailCannotChange")}
                   </p>
                 </div>
 
                 {/* Username */}
                 <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="username">{t("auth.username")}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -347,7 +350,7 @@ const Profile = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    3-20 characters, letters, numbers, underscores and hyphens only
+                    {t("profile.usernameRule")}
                   </p>
                 </div>
 
@@ -355,12 +358,12 @@ const Profile = () => {
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      {t("common.saving")}
                     </>
                   ) : (
                     <>
                       <Save className="mr-2 h-4 w-4" />
-                      Save Changes
+                      {t("profile.saveChanges")}
                     </>
                   )}
                 </Button>

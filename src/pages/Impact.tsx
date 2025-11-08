@@ -6,6 +6,8 @@ import { Loader2, Award, Leaf, CheckCircle2, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 interface JobCompletion {
   id: string;
   completed_at: string;
@@ -34,6 +36,7 @@ const Impact = () => {
     avgScore: 0,
   });
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchCompletions();
@@ -123,9 +126,9 @@ const Impact = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto space-y-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Your Impact Dashboard</h1>
+            <h1 className="text-4xl font-bold mb-2">{t("impact.title")}</h1>
             <p className="text-lg text-muted-foreground">
-              Track your contribution to climate resilience
+              {t("impact.subtitle")}
             </p>
           </div>
 
@@ -133,9 +136,7 @@ const Impact = () => {
           <Card className="bg-muted/50 border-primary/20">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">
-                Our prototype simulates how climate-resilience micro-jobs can generate both
-                economic and climate benefits. In a real deployment, each completion would
-                correspond to verified field activity.
+                {t("impact.disclaimer")}
               </p>
             </CardContent>
           </Card>
@@ -144,52 +145,52 @@ const Impact = () => {
           <div className="grid md:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Jobs Completed</CardTitle>
+                <CardTitle className="text-sm font-medium">{t("impact.jobsCompleted")}</CardTitle>
                 <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalJobs}</div>
                 <p className="text-xs text-muted-foreground">
-                  Micro-jobs finished
+                  {t("impact.microJobsFinished")}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
+                <CardTitle className="text-sm font-medium">{t("impact.totalCredits")}</CardTitle>
                 <Award className="h-4 w-4 text-warning" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalCredits}</div>
                 <p className="text-xs text-muted-foreground">
-                  Credits earned
+                  {t("impact.creditsEarned")}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">CO₂ Impact</CardTitle>
+                <CardTitle className="text-sm font-medium">{t("impact.co2Impact")}</CardTitle>
                 <Leaf className="h-4 w-4 text-success" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalCO2.toFixed(1)} kg</div>
                 <p className="text-xs text-muted-foreground">
-                  Estimated offset
+                  {t("impact.estimatedOffset")}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Quiz Score</CardTitle>
+                <CardTitle className="text-sm font-medium">{t("impact.avgQuizScore")}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-info" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.avgScore}%</div>
                 <p className="text-xs text-muted-foreground">
-                  Learning performance
+                  {t("impact.learningPerformance")}
                 </p>
               </CardContent>
             </Card>
@@ -201,8 +202,8 @@ const Impact = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Credits by Category</CardTitle>
-                    <CardDescription>Total credits earned per job category</CardDescription>
+                    <CardTitle>{t("impact.creditsByCategory")}</CardTitle>
+                    <CardDescription>{t("impact.creditsDesc")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -219,8 +220,8 @@ const Impact = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>CO₂ Impact by Category</CardTitle>
-                    <CardDescription>Distribution of your climate impact</CardDescription>
+                    <CardTitle>{t("impact.co2ByCategory")}</CardTitle>
+                    <CardDescription>{t("impact.co2Desc")}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -250,8 +251,8 @@ const Impact = () => {
               {/* Recent Completions */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Completions</CardTitle>
-                  <CardDescription>Your latest micro-job achievements</CardDescription>
+                  <CardTitle>{t("impact.recentCompletions")}</CardTitle>
+                  <CardDescription>{t("impact.recentDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -263,13 +264,13 @@ const Impact = () => {
                         <div className="flex-1">
                           <h4 className="font-medium">{completion.micro_jobs.title}</h4>
                           <p className="text-sm text-muted-foreground">
-                            Completed {new Date(completion.completed_at).toLocaleDateString()}
+                            {t("impact.completed")} {new Date(completion.completed_at).toLocaleDateString()}
                           </p>
                         </div>
                         <div className="flex items-center gap-6">
                           <div className="text-center">
                             <div className="text-lg font-bold text-warning">{completion.earned_credits}</div>
-                            <div className="text-xs text-muted-foreground">credits</div>
+                            <div className="text-xs text-muted-foreground">{t("jobs.credits")}</div>
                           </div>
                           <div className="text-center">
                             <div className="text-lg font-bold text-success">
@@ -279,7 +280,7 @@ const Impact = () => {
                           </div>
                           <div className="text-center">
                             <div className="text-lg font-bold">{completion.quiz_score_percent}%</div>
-                            <div className="text-xs text-muted-foreground">score</div>
+                            <div className="text-xs text-muted-foreground">{t("impact.score")}</div>
                           </div>
                         </div>
                       </div>
@@ -292,9 +293,9 @@ const Impact = () => {
             <Card>
               <CardContent className="py-12 text-center">
                 <Leaf className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No Impact Yet</h3>
+                <h3 className="text-xl font-semibold mb-2">{t("impact.noImpact")}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Start completing micro-jobs to see your impact here!
+                  {t("impact.noImpactDesc")}
                 </p>
               </CardContent>
             </Card>

@@ -22,6 +22,7 @@ const RegionDetail = lazy(() => import("./pages/RegionDetail"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Auth = lazy(() => import("./pages/Auth"));
 const QuizChat = lazy(() => import("./pages/QuizChat"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -76,6 +77,7 @@ const App = memo(() => {
                 <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
                 <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
                 <Route path="/quiz" element={<PageTransition><QuizChat /></PageTransition>} />
+                <Route path="/leaderboard" element={<PageTransition><Leaderboard /></PageTransition>} />
                 <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

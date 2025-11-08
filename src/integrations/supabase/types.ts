@@ -196,6 +196,39 @@ export type Database = {
           },
         ]
       }
+      quiz_scores: {
+        Row: {
+          created_at: string
+          difficulty: string
+          id: string
+          percentage: number | null
+          score: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty: string
+          id?: string
+          percentage?: number | null
+          score: number
+          topic: string
+          total_questions: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          id?: string
+          percentage?: number | null
+          score?: number
+          topic?: string
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       regions: {
         Row: {
           avg_download_mbps: number

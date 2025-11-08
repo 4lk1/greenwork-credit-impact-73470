@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Leaf, Briefcase, TrendingUp, Globe, Menu, X, LogOut, User, Sparkles } from "lucide-react";
+import { Leaf, Briefcase, TrendingUp, Globe, Menu, X, LogOut, User, Sparkles, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,6 +31,7 @@ export const Navigation = () => {
     { to: "/regions", label: t("nav.regions"), icon: Globe },
     { to: "/impact", label: t("nav.impact"), icon: TrendingUp },
     { to: "/quiz", label: "AI Quiz", icon: Sparkles },
+    { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
   ];
 
   useEffect(() => {

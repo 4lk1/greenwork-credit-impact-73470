@@ -4,8 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, Sparkles, BookOpen } from "lucide-react";
+import { Loader2, Send, Sparkles, BookOpen, Trophy, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Message = {
   role: "user" | "assistant";
@@ -13,6 +25,7 @@ type Message = {
 };
 
 const QuizChat = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -21,6 +34,11 @@ const QuizChat = () => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [quizTopic, setQuizTopic] = useState("");
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizTotal, setQuizTotal] = useState(0);
+  const [quizDifficulty, setQuizDifficulty] = useState<"beginner" | "intermediate" | "advanced">("beginner");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -148,6 +166,51 @@ const QuizChat = () => {
     }
   };
 
+  const handleSaveScore = () => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to save your quiz scores.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setShowSaveDialog(true);
+  };
+
+  const saveQuizScore = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.from("quiz_scores").insert({
+        user_id: user.id,
+        topic: quizTopic,
+        score: quizScore,
+        total_questions: quizTotal,
+        difficulty: quizDifficulty,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Score saved! 🎉",
+        description: `Your score of ${quizScore}/${quizTotal} has been added to the leaderboard.`,
+      });
+
+      setShowSaveDialog(false);
+      setQuizTopic("");
+      setQuizScore(0);
+      setQuizTotal(0);
+    } catch (error) {
+      console.error("Error saving score:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save quiz score. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -254,7 +317,106 @@ const QuizChat = () => {
             </CardContent>
           </Card>
         </div>
+
+        {user && (
+          <Card className="mt-6 gradient-card border-primary/20">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Trophy className="h-8 w-8 text-primary" />
+                  <div>
+                    <p className="font-semibold">Completed a quiz?</p>
+                    <p className="text-sm text-muted-foreground">Save your score to the leaderboard!</p>
+                  </div>
+                </div>
+                <Button onClick={handleSaveScore} className="gap-2">
+                  <Save className="h-4 w-4" />
+                  Save Score
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-primary" />
+              Save Quiz Score
+            </DialogTitle>
+            <DialogDescription>
+              Enter your quiz details to save your score to the leaderboard.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="topic">Quiz Topic</Label>
+              <Input
+                id="topic"
+                placeholder="e.g., Renewable Energy"
+                value={quizTopic}
+                onChange={(e) => setQuizTopic(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="score">Your Score</Label>
+                <Input
+                  id="score"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={quizScore || ""}
+                  onChange={(e) => setQuizScore(parseInt(e.target.value) || 0)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="total">Total Questions</Label>
+                <Input
+                  id="total"
+                  type="number"
+                  min="1"
+                  placeholder="0"
+                  value={quizTotal || ""}
+                  onChange={(e) => setQuizTotal(parseInt(e.target.value) || 0)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="difficulty">Difficulty</Label>
+              <Select value={quizDifficulty} onValueChange={(value: any) => setQuizDifficulty(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={saveQuizScore}
+              disabled={!quizTopic || !quizScore || !quizTotal}
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save to Leaderboard
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

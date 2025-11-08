@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, User, Mail, Image as ImageIcon, Save } from "lucide-react";
+import { Loader2, User, Mail, Image as ImageIcon, Save, Briefcase, Award, Leaf } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -24,17 +24,25 @@ interface Profile {
   avatar_url: string | null;
 }
 
+interface UserStats {
+  totalJobs: number;
+  totalCredits: number;
+  totalCO2Impact: number;
+}
+
 const Profile = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [stats, setStats] = useState<UserStats>({ totalJobs: 0, totalCredits: 0, totalCO2Impact: 0 });
   const [username, setUsername] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
     if (user) {
       fetchProfile();
+      fetchStats();
     }
   }, [user]);
 
@@ -56,6 +64,29 @@ const Profile = () => {
       toast.error("Failed to load profile");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("job_completions")
+        .select("earned_credits, estimated_co2_kg_impact")
+        .eq("user_id", user?.id);
+
+      if (error) throw error;
+
+      const totalJobs = data?.length || 0;
+      const totalCredits = data?.reduce((sum, job) => sum + job.earned_credits, 0) || 0;
+      const totalCO2Impact = data?.reduce((sum, job) => sum + Number(job.estimated_co2_kg_impact), 0) || 0;
+
+      setStats({
+        totalJobs,
+        totalCredits,
+        totalCO2Impact: Math.round(totalCO2Impact * 100) / 100, // Round to 2 decimals
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
     }
   };
 
@@ -130,6 +161,51 @@ const Profile = () => {
             <p className="text-muted-foreground mt-2">
               Manage your account information and preferences
             </p>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Briefcase className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{stats.totalJobs}</p>
+                    <p className="text-xs text-muted-foreground">Jobs Completed</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-warning/10 flex items-center justify-center">
+                    <Award className="h-5 w-5 text-warning" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{stats.totalCredits}</p>
+                    <p className="text-xs text-muted-foreground">Credits Earned</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
+                    <Leaf className="h-5 w-5 text-success" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{stats.totalCO2Impact}</p>
+                    <p className="text-xs text-muted-foreground">kg CO₂ Impact</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <Card>

@@ -41,6 +41,7 @@ const AdminMicroJobForm = lazy(() => import("./pages/admin/MicroJobForm"));
 const AdminCompletions = lazy(() => import("./pages/admin/Completions"));
 const AdminLeaderboards = lazy(() => import("./pages/admin/Leaderboards"));
 const AdminData = lazy(() => import("./pages/admin/Data"));
+const AdminSeedData = lazy(() => import("./pages/admin/SeedData"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,6 +118,7 @@ const App = memo(() => {
                           <Route path="completions" element={<Suspense fallback={<div>Loading...</div>}><AdminCompletions /></Suspense>} />
                           <Route path="leaderboards" element={<Suspense fallback={<div>Loading...</div>}><AdminLeaderboards /></Suspense>} />
                           <Route path="data" element={<Suspense fallback={<div>Loading...</div>}><AdminData /></Suspense>} />
+                          <Route path="seed" element={<Suspense fallback={<div>Loading...</div>}><AdminSeedData /></Suspense>} />
                         </Route>
                         
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

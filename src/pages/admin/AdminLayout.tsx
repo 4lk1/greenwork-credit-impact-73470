@@ -9,7 +9,8 @@ import {
   Trophy, 
   Database,
   LogOut,
-  Shield
+  Shield,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,7 @@ const navItems = [
   { path: '/admin/completions', label: 'Completions', icon: CheckSquare },
   { path: '/admin/leaderboards', label: 'Leaderboards', icon: Trophy },
   { path: '/admin/data', label: 'Data', icon: Database },
+  { path: '/admin/seed', label: 'Seed Data', icon: Sparkles },
 ];
 
 export default function AdminLayout() {

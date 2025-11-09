@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { toast } from '@/hooks/use-toast';
-import { Shield, AlertCircle } from 'lucide-react';
+import { Shield, AlertCircle, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function AdminLogin() {
@@ -36,7 +36,15 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
-      <Card className="w-full max-w-md shadow-large">
+      <Card className="w-full max-w-md shadow-large relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 right-4 h-8 w-8"
+          onClick={() => navigate('/')}
+        >
+          <X className="h-4 w-4" />
+        </Button>
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
             <Shield className="w-8 h-8 text-primary" />

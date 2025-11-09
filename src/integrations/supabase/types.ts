@@ -37,31 +37,46 @@ export type Database = {
       }
       communities: {
         Row: {
+          announcement: string | null
+          banner_url: string | null
           created_at: string
           created_by_user_id: string
           description: string | null
           id: string
           is_public: boolean
           name: string
+          pinned_message: string | null
           region_or_country: string | null
+          rules: string | null
+          tags: string[] | null
         }
         Insert: {
+          announcement?: string | null
+          banner_url?: string | null
           created_at?: string
           created_by_user_id: string
           description?: string | null
           id?: string
           is_public?: boolean
           name: string
+          pinned_message?: string | null
           region_or_country?: string | null
+          rules?: string | null
+          tags?: string[] | null
         }
         Update: {
+          announcement?: string | null
+          banner_url?: string | null
           created_at?: string
           created_by_user_id?: string
           description?: string | null
           id?: string
           is_public?: boolean
           name?: string
+          pinned_message?: string | null
           region_or_country?: string | null
+          rules?: string | null
+          tags?: string[] | null
         }
         Relationships: [
           {
@@ -123,6 +138,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_follow_stats"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      community_missions: {
+        Row: {
+          community_id: string
+          created_at: string
+          created_by_user_id: string
+          description: string | null
+          due_date: string | null
+          id: string
+          is_active: boolean
+          target_co2: number | null
+          target_credits: number | null
+          target_jobs: number | null
+          title: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          created_by_user_id: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_active?: boolean
+          target_co2?: number | null
+          target_credits?: number | null
+          target_jobs?: number | null
+          title: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          created_by_user_id?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_active?: boolean
+          target_co2?: number | null
+          target_credits?: number | null
+          target_jobs?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_missions_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
           },
         ]
       }

@@ -10,6 +10,11 @@ export interface Community {
   is_public: boolean;
   created_at: string;
   updated_at: string;
+  banner_url?: string | null;
+  tags?: string[] | null;
+  rules?: string | null;
+  pinned_message?: string | null;
+  announcement?: string | null;
 }
 
 export interface CommunityMembership {

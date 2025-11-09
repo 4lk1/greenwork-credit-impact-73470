@@ -450,27 +450,6 @@ export type Database = {
           },
         ]
       }
-      users: {
-        Row: {
-          created_at: string | null
-          id: string
-          location: string | null
-          name: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          location?: string | null
-          name: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          location?: string | null
-          name?: string
-        }
-        Relationships: []
-      }
       verification_codes: {
         Row: {
           code: string

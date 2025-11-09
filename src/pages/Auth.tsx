@@ -70,25 +70,6 @@ const Auth = () => {
 
     setIsLoading(true);
     
-    // Check if logging in with admin credentials
-    const isAdminLogin = loginEmail === "admin@greenworks.com" && loginPassword === "admin123";
-    
-    if (isAdminLogin) {
-      // Log into admin system
-      const adminResult = await adminLogin(loginPassword);
-      
-      if (adminResult.success) {
-        toast.success("Logged in as admin!");
-        navigate("/admin");
-        setIsLoading(false);
-        return;
-      } else {
-        toast.error("Admin login failed");
-        setIsLoading(false);
-        return;
-      }
-    }
-    
     // Regular user login
     const { error } = await signIn(loginEmail, loginPassword, rememberMe);
     setIsLoading(false);

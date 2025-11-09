@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface AdminAuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -47,10 +47,10 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const login = async (password: string) => {
+  const login = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('admin-login', {
-        body: { password }
+        body: { email, password }
       });
 
       if (error || data?.error) {

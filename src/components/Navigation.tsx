@@ -40,12 +40,31 @@ export const Navigation = () => {
   useEffect(() => {
     if (user) {
       fetchUserProfile();
+      checkAdminRole();
+    } else {
+      setIsAdmin(false);
     }
-    
-    // Check admin session
-    const adminToken = localStorage.getItem('admin_session_token');
-    setIsAdmin(!!adminToken);
   }, [user]);
+
+  const checkAdminRole = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
+      });
+      
+      if (!error && data) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+      setIsAdmin(false);
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {

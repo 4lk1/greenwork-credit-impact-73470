@@ -7,7 +7,8 @@ const corsHeaders = {
 };
 
 const requestSchema = z.object({
-  password: z.string().min(1, "Password is required").max(100, "Password too long"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 Deno.serve(async (req) => {
@@ -26,30 +27,48 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { password } = validation.data;
-    const adminPassword = Deno.env.get('ADMIN_PASSWORD') || 'admin123';
+    const { email, password } = validation.data;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    console.log('Admin login attempt received');
+    // Create client with anon key for authentication
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    
+    // Authenticate user
+    const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (password !== adminPassword) {
-      console.log('Invalid admin password');
+    if (authError || !authData.user) {
+      console.log('Authentication failed:', authError?.message);
       return new Response(
-        JSON.stringify({ error: 'Invalid password' }),
+        JSON.stringify({ error: 'Invalid credentials' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Create a simple session token
+    // Check if user has admin role using service role client
+    const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
+    const { data: hasAdminRole, error: roleError } = await supabaseService.rpc('has_role', {
+      _user_id: authData.user.id,
+      _role: 'admin'
+    });
+
+    if (roleError || !hasAdminRole) {
+      console.log('User does not have admin role:', roleError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Admin privileges required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create admin session token
     const sessionToken = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Store session in database
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Create admin_sessions table if not exists (handled via migration)
-    const { error: insertError } = await supabase
+    const { error: insertError } = await supabaseService
       .from('admin_sessions')
       .insert({
         session_token: sessionToken,
@@ -61,7 +80,7 @@ Deno.serve(async (req) => {
       throw insertError;
     }
 
-    console.log('Admin login successful');
+    console.log('Admin login successful for user:', authData.user.email);
     return new Response(
       JSON.stringify({ 
         success: true, 

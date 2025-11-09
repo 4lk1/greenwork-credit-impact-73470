@@ -9,6 +9,7 @@ import { Shield, AlertCircle, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function AdminLogin() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAdminAuth();
@@ -18,7 +19,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await login(password);
+    const result = await login(email, password);
 
     if (result.success) {
       toast({ title: 'Success', description: 'Logged in as admin' });
@@ -26,7 +27,7 @@ export default function AdminLogin() {
     } else {
       toast({ 
         title: 'Error', 
-        description: result.error || 'Invalid password',
+        description: result.error || 'Invalid credentials',
         variant: 'destructive' 
       });
     }
@@ -58,15 +59,25 @@ export default function AdminLogin() {
           <Alert className="mb-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="text-sm">
-              If ADMIN_PASSWORD is not set, default is "admin123"
+              Contact your system administrator for admin credentials
             </AlertDescription>
           </Alert>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Input
+                type="email"
+                placeholder="Admin email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+                required
+              />
+            </div>
+            <div>
+              <Input
                 type="password"
-                placeholder="Admin password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}

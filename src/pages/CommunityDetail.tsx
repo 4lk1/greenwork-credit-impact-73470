@@ -11,6 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { ArrowLeft, Globe, Users, Award, Briefcase, TrendingUp, UserPlus, LogOut } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Community, CommunityMembership, Profile, JobCompletion } from "@/types/social";
+
+interface MemberWithStats extends CommunityMembership {
+  profile: Profile;
+  totalCredits: number;
+  totalCo2: number;
+  totalJobs: number;
+}
 
 export default function CommunityDetail() {
   const { id } = useParams();
@@ -19,27 +27,27 @@ export default function CommunityDetail() {
   const queryClient = useQueryClient();
 
   // Fetch community details
-  const { data: community, isLoading: loadingCommunity } = useQuery({
+  const { data: community, isLoading: loadingCommunity } = useQuery<Community>({
     queryKey: ["community", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("communities")
         .select("*")
         .eq("id", id)
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Community;
     },
   });
 
   // Fetch current user's membership
-  const { data: currentMembership } = useQuery({
+  const { data: currentMembership } = useQuery<CommunityMembership | null>({
     queryKey: ["community-membership", id, user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("community_memberships")
         .select("*")
         .eq("community_id", id)
@@ -47,16 +55,16 @@ export default function CommunityDetail() {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
-      return data;
+      return data as CommunityMembership | null;
     },
     enabled: !!user?.id,
   });
 
   // Fetch all members
-  const { data: members, isLoading: loadingMembers } = useQuery({
+  const { data: members, isLoading: loadingMembers } = useQuery<MemberWithStats[]>({
     queryKey: ["community-members", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("community_memberships")
         .select(`
           *,
@@ -69,8 +77,8 @@ export default function CommunityDetail() {
 
       // Fetch stats for each member
       const membersWithStats = await Promise.all(
-        (data || []).map(async (member) => {
-          const { data: completions, error: completionsError } = await supabase
+        (data || []).map(async (member: any) => {
+          const { data: completions, error: completionsError } = await (supabase as any)
             .from("job_completions")
             .select("earned_credits, estimated_co2_kg_impact")
             .eq("user_id", member.user_id)
@@ -78,8 +86,8 @@ export default function CommunityDetail() {
 
           if (completionsError) throw completionsError;
 
-          const totalCredits = completions?.reduce((sum, c) => sum + (c.earned_credits || 0), 0) || 0;
-          const totalCo2 = completions?.reduce((sum, c) => sum + (c.estimated_co2_kg_impact || 0), 0) || 0;
+          const totalCredits = (completions || []).reduce((sum: number, c: any) => sum + (c.earned_credits || 0), 0);
+          const totalCo2 = (completions || []).reduce((sum: number, c: any) => sum + (Number(c.estimated_co2_kg_impact) || 0), 0);
           const totalJobs = completions?.length || 0;
 
           return {
@@ -87,7 +95,7 @@ export default function CommunityDetail() {
             totalCredits,
             totalCo2,
             totalJobs,
-          };
+          } as MemberWithStats;
         })
       );
 
@@ -99,7 +107,7 @@ export default function CommunityDetail() {
   const { data: communityStats } = useQuery({
     queryKey: ["community-stats", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("job_completions")
         .select("earned_credits, estimated_co2_kg_impact")
         .eq("community_id", id);
@@ -108,8 +116,8 @@ export default function CommunityDetail() {
 
       return {
         totalJobs: data?.length || 0,
-        totalCredits: data?.reduce((sum, c) => sum + (c.earned_credits || 0), 0) || 0,
-        totalCo2: data?.reduce((sum, c) => sum + (c.estimated_co2_kg_impact || 0), 0) || 0,
+        totalCredits: (data || []).reduce((sum: number, c: any) => sum + (c.earned_credits || 0), 0),
+        totalCo2: (data || []).reduce((sum: number, c: any) => sum + (Number(c.estimated_co2_kg_impact) || 0), 0),
       };
     },
   });
@@ -119,7 +127,7 @@ export default function CommunityDetail() {
     mutationFn: async () => {
       if (!user?.id) throw new Error("User not authenticated");
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("community_memberships")
         .insert({
           community_id: id,
@@ -144,7 +152,7 @@ export default function CommunityDetail() {
     mutationFn: async () => {
       if (!user?.id || !currentMembership) throw new Error("Invalid membership");
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("community_memberships")
         .delete()
         .eq("id", currentMembership.id);

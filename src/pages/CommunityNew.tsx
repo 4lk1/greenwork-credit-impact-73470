@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { ArrowLeft, Users } from "lucide-react";
+import type { Community } from "@/types/social";
 
 export default function CommunityNew() {
   const navigate = useNavigate();
@@ -23,12 +24,12 @@ export default function CommunityNew() {
     is_public: true,
   });
 
-  const createCommunityMutation = useMutation({
+  const createCommunityMutation = useMutation<Community>({
     mutationFn: async () => {
       if (!user?.id) throw new Error("User not authenticated");
 
       // Create community
-      const { data: community, error: communityError } = await supabase
+      const { data: community, error: communityError } = await (supabase as any)
         .from("communities")
         .insert({
           name: formData.name,
@@ -43,7 +44,7 @@ export default function CommunityNew() {
       if (communityError) throw communityError;
 
       // Add creator as owner member
-      const { error: membershipError } = await supabase
+      const { error: membershipError } = await (supabase as any)
         .from("community_memberships")
         .insert({
           community_id: community.id,
@@ -53,7 +54,7 @@ export default function CommunityNew() {
 
       if (membershipError) throw membershipError;
 
-      return community;
+      return community as Community;
     },
     onSuccess: (community) => {
       toast.success("Community created successfully!");

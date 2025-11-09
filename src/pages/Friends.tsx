@@ -10,16 +10,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Users, UserPlus, Check, X, MapPin, Briefcase, Award } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Profile } from "@/types/social";
+
+interface FriendWithStats extends Profile {
+  friendship_id: string;
+  created_at: string;
+}
+
+interface FriendStats {
+  userId: string;
+  totalJobs: number;
+  totalCredits: number;
+  totalCo2: number;
+}
 
 export default function Friends() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   // Fetch friends (accepted friendships)
-  const { data: friends, isLoading: loadingFriends } = useQuery({
+  const { data: friends, isLoading: loadingFriends } = useQuery<FriendWithStats[]>({
     queryKey: ["friends", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("friendships")
         .select(`
           id,
@@ -38,7 +51,7 @@ export default function Friends() {
       if (error) throw error;
 
       // Also fetch reverse friendships
-      const { data: reverseFriends, error: reverseError } = await supabase
+      const { data: reverseFriends, error: reverseError } = await (supabase as any)
         .from("friendships")
         .select(`
           id,
@@ -58,24 +71,24 @@ export default function Friends() {
 
       // Combine and deduplicate
       const allFriends = [
-        ...(data || []).map(f => ({ ...f.friend, friendship_id: f.id, created_at: f.created_at })),
-        ...(reverseFriends || []).map(f => ({ ...f.friend, friendship_id: f.id, created_at: f.created_at }))
+        ...(data || []).map((f: any) => ({ ...f.friend, friendship_id: f.id, created_at: f.created_at })),
+        ...(reverseFriends || []).map((f: any) => ({ ...f.friend, friendship_id: f.id, created_at: f.created_at }))
       ];
 
-      return allFriends;
+      return allFriends as FriendWithStats[];
     },
     enabled: !!user,
   });
 
   // Fetch friend stats
-  const { data: friendStats } = useQuery({
+  const { data: friendStats } = useQuery<FriendStats[]>({
     queryKey: ["friend-stats", friends],
     queryFn: async () => {
       if (!friends || friends.length === 0) return [];
 
       const stats = await Promise.all(
         friends.map(async (friend) => {
-          const { data, error } = await supabase
+          const { data, error } = await (supabase as any)
             .from("job_completions")
             .select("earned_credits, estimated_co2_kg_impact", { count: "exact" })
             .eq("user_id", friend.id);
@@ -85,8 +98,8 @@ export default function Friends() {
           return {
             userId: friend.id,
             totalJobs: data?.length || 0,
-            totalCredits: data?.reduce((sum, c) => sum + (c.earned_credits || 0), 0) || 0,
-            totalCo2: data?.reduce((sum, c) => sum + (c.estimated_co2_kg_impact || 0), 0) || 0,
+            totalCredits: (data || []).reduce((sum: number, c: any) => sum + (c.earned_credits || 0), 0),
+            totalCo2: (data || []).reduce((sum: number, c: any) => sum + (Number(c.estimated_co2_kg_impact) || 0), 0),
           };
         })
       );
@@ -97,11 +110,11 @@ export default function Friends() {
   });
 
   // Fetch pending requests
-  const { data: pendingRequests, isLoading: loadingPending } = useQuery({
+  const { data: pendingRequests, isLoading: loadingPending } = useQuery<{ incoming: any[]; outgoing: any[] }>({
     queryKey: ["pending-requests", user?.id],
     queryFn: async () => {
       // Incoming requests
-      const { data: incoming, error: incomingError } = await supabase
+      const { data: incoming, error: incomingError } = await (supabase as any)
         .from("friendships")
         .select(`
           id,
@@ -120,7 +133,7 @@ export default function Friends() {
       if (incomingError) throw incomingError;
 
       // Outgoing requests
-      const { data: outgoing, error: outgoingError } = await supabase
+      const { data: outgoing, error: outgoingError } = await (supabase as any)
         .from("friendships")
         .select(`
           id,
@@ -147,11 +160,11 @@ export default function Friends() {
   });
 
   // Fetch suggested users
-  const { data: suggestedUsers, isLoading: loadingSuggested } = useQuery({
+  const { data: suggestedUsers, isLoading: loadingSuggested } = useQuery<Profile[]>({
     queryKey: ["suggested-users", user?.id],
     queryFn: async () => {
       // Get users who are not friends and not the current user
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("id, username, display_name, avatar_url")
         .neq("id", user?.id)
@@ -162,11 +175,11 @@ export default function Friends() {
       // Filter out existing friends and pending requests
       const friendIds = new Set([
         ...(friends || []).map(f => f.id),
-        ...(pendingRequests?.incoming || []).map(r => r.user_id),
-        ...(pendingRequests?.outgoing || []).map(r => r.friend_user_id),
+        ...(pendingRequests?.incoming || []).map((r: any) => r.user_id),
+        ...(pendingRequests?.outgoing || []).map((r: any) => r.friend_user_id),
       ]);
 
-      return (data || []).filter(u => !friendIds.has(u.id));
+      return ((data || []) as Profile[]).filter(u => !friendIds.has(u.id));
     },
     enabled: !!user && !!friends && !!pendingRequests,
   });
@@ -174,7 +187,7 @@ export default function Friends() {
   // Send friend request mutation
   const sendRequestMutation = useMutation({
     mutationFn: async (friendId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("friendships")
         .insert({
           user_id: user?.id,
@@ -197,7 +210,7 @@ export default function Friends() {
   // Accept friend request mutation
   const acceptRequestMutation = useMutation({
     mutationFn: async (friendshipId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("friendships")
         .update({ status: "accepted" })
         .eq("id", friendshipId);
@@ -217,7 +230,7 @@ export default function Friends() {
   // Reject friend request mutation
   const rejectRequestMutation = useMutation({
     mutationFn: async (friendshipId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("friendships")
         .update({ status: "rejected" })
         .eq("id", friendshipId);

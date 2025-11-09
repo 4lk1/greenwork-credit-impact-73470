@@ -10,6 +10,14 @@ import { Users, Globe, Award, Briefcase, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { Community, JobCompletion } from "@/types/social";
+
+interface CommunityWithStats extends Community {
+  memberCount: number;
+  totalCredits: number;
+  totalCo2: number;
+  totalJobs: number;
+}
 
 export default function Communities() {
   const navigate = useNavigate();
@@ -17,10 +25,10 @@ export default function Communities() {
   const [regionFilter, setRegionFilter] = useState<string>("all");
 
   // Fetch communities with stats
-  const { data: communities, isLoading } = useQuery({
+  const { data: communities, isLoading } = useQuery<CommunityWithStats[]>({
     queryKey: ["communities"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("communities")
         .select(`
           *,
@@ -33,16 +41,16 @@ export default function Communities() {
 
       // Fetch stats for each community
       const communitiesWithStats = await Promise.all(
-        (data || []).map(async (community) => {
-          const { data: completions, error: completionsError } = await supabase
+        (data || []).map(async (community: any) => {
+          const { data: completions, error: completionsError } = await (supabase as any)
             .from("job_completions")
             .select("earned_credits, estimated_co2_kg_impact")
             .eq("community_id", community.id);
 
           if (completionsError) throw completionsError;
 
-          const totalCredits = completions?.reduce((sum, c) => sum + (c.earned_credits || 0), 0) || 0;
-          const totalCo2 = completions?.reduce((sum, c) => sum + (c.estimated_co2_kg_impact || 0), 0) || 0;
+          const totalCredits = (completions || []).reduce((sum: number, c: any) => sum + (c.earned_credits || 0), 0);
+          const totalCo2 = (completions || []).reduce((sum: number, c: any) => sum + (Number(c.estimated_co2_kg_impact) || 0), 0);
           const totalJobs = completions?.length || 0;
 
           return {
@@ -51,7 +59,7 @@ export default function Communities() {
             totalCredits,
             totalCo2,
             totalJobs,
-          };
+          } as CommunityWithStats;
         })
       );
 

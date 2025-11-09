@@ -95,25 +95,18 @@ export const Navigation = () => {
       <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-glass shadow-soft supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div 
-                onClick={showIntro}
-                className="flex items-center gap-2 group cursor-pointer"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary shadow-medium group-hover:shadow-glow transition-smooth">
-                  <Leaf className="h-6 w-6 text-primary-foreground transition-smooth group-hover:scale-110 group-hover:rotate-12" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-earth bg-clip-text text-transparent">
-                    GreenWorks
-                  </h1>
-                  <p className="text-xs text-muted-foreground">CodeX</p>
-                </div>
+            <div 
+              onClick={showIntro}
+              className="flex items-center gap-2 group cursor-pointer"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary shadow-medium group-hover:shadow-glow transition-smooth">
+                <Leaf className="h-6 w-6 text-primary-foreground transition-smooth group-hover:scale-110 group-hover:rotate-12" />
               </div>
-              
-              {/* Search bar - always visible in navbar */}
-              <div className="hidden lg:block">
-                <GlobalSearch />
+              <div>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-earth bg-clip-text text-transparent">
+                  GreenWorks
+                </h1>
+                <p className="text-xs text-muted-foreground">CodeX</p>
               </div>
             </div>
 
@@ -255,6 +248,10 @@ export const Navigation = () => {
         </div>
       </nav>
       
+      {/* Search bar positioned below logo - stays fixed while scrolling */}
+      <div className="hidden lg:block fixed top-20 left-8 z-40">
+        <GlobalSearch />
+      </div>
     </>
   );
 };

@@ -96,7 +96,7 @@ export type Database = {
             foreignKeyName: "job_completions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -105,25 +105,25 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          last_updated: string
           microjob_id: string
           quiz_answers: Json
+          updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          last_updated?: string
           microjob_id: string
           quiz_answers?: Json
+          updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          last_updated?: string
           microjob_id?: string
           quiz_answers?: Json
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

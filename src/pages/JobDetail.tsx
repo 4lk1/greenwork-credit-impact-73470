@@ -107,32 +107,25 @@ const JobDetail = () => {
       
       setJob(jobData);
 
-      // Fetch training module
-      const { data: trainingData, error: trainingError } = await supabase
+      // Fetch training module (optional - some jobs may not have training yet)
+      const { data: trainingData } = await supabase
         .from("training_modules")
         .select("*")
         .eq("microjob_id", id)
         .limit(1)
         .maybeSingle();
 
-      if (trainingError) throw trainingError;
-      
-      if (!trainingData) {
-        toast.error("Training module not found");
-        setLoading(false);
-        return;
+      if (trainingData) {
+        setTraining(trainingData);
+
+        // Fetch quiz questions if training exists
+        const { data: questionsData } = await supabase
+          .from("quiz_questions")
+          .select("*")
+          .eq("training_module_id", trainingData.id);
+
+        setQuestions(questionsData || []);
       }
-      
-      setTraining(trainingData);
-
-      // Fetch quiz questions
-      const { data: questionsData, error: questionsError } = await supabase
-        .from("quiz_questions")
-        .select("*")
-        .eq("training_module_id", trainingData.id);
-
-      if (questionsError) throw questionsError;
-      setQuestions(questionsData || []);
 
       // Load existing progress only if user is logged in
       if (user) {
@@ -262,12 +255,23 @@ const JobDetail = () => {
     );
   }
 
-  if (!job || !training) {
+  if (!job) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-8">
-          <p>{t("jobDetail.jobNotFound")}</p>
+        <div className="container mx-auto px-4 py-8 text-center">
+          <Card className="max-w-md mx-auto">
+            <CardContent className="pt-6">
+              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Job Not Found</h2>
+              <p className="text-muted-foreground mb-4">
+                The job you're looking for doesn't exist or has been removed.
+              </p>
+              <Button onClick={() => navigate("/jobs")}>
+                Browse Available Jobs
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -329,53 +333,68 @@ const JobDetail = () => {
           </Card>
 
           {/* Training Module */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">{t("jobDetail.learning")}</CardTitle>
-              <CardDescription>{t("jobDetail.learningDesc")}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="prose prose-sm max-w-none">
-                <div className="whitespace-pre-line text-foreground">{training.content}</div>
-              </div>
-
-              {training.learning_objectives && training.learning_objectives.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2">{t("jobDetail.learningObjectives")}</h4>
-                  <ul className="space-y-1">
-                    {training.learning_objectives.map((obj, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">{obj}</span>
-                      </li>
-                    ))}
-                  </ul>
+          {training ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">{t("jobDetail.learning")}</CardTitle>
+                <CardDescription>{t("jobDetail.learningDesc")}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="prose prose-sm max-w-none">
+                  <div className="whitespace-pre-line text-foreground">{training.content}</div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* Quiz */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">{t("jobDetail.knowledgeQuiz")}</CardTitle>
-                  <CardDescription>
-                    {t("jobDetail.quizDesc")}
-                  </CardDescription>
-                </div>
-                {lastSaved && !showResults && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Save className={`h-4 w-4 ${isSaving ? 'animate-pulse' : ''}`} />
-                    <span>
-                      {isSaving ? t("common.saving") : `${t("common.save")} ${new Date(lastSaved).toLocaleTimeString()}`}
-                    </span>
+                {training.learning_objectives && training.learning_objectives.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-2">{t("jobDetail.learningObjectives")}</h4>
+                    <ul className="space-y-1">
+                      {training.learning_objectives.map((obj, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{obj}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-muted">
+              <CardContent className="pt-6">
+                <div className="text-center py-8">
+                  <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Training Content Coming Soon</h3>
+                  <p className="text-muted-foreground">
+                    Learning materials and quiz for this job are being prepared. Check back later!
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quiz */}
+          {questions.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl">{t("jobDetail.knowledgeQuiz")}</CardTitle>
+                    <CardDescription>
+                      {t("jobDetail.quizDesc")}
+                    </CardDescription>
+                  </div>
+                  {lastSaved && !showResults && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Save className={`h-4 w-4 ${isSaving ? 'animate-pulse' : ''}`} />
+                      <span>
+                        {isSaving ? t("common.saving") : `${t("common.save")} ${new Date(lastSaved).toLocaleTimeString()}`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
               {!user && (
                 <Card className="border-primary/50 bg-primary/5">
                   <CardContent className="pt-6">
@@ -513,6 +532,19 @@ const JobDetail = () => {
               )}
             </CardContent>
           </Card>
+          ) : training ? (
+            <Card className="border-muted">
+              <CardContent className="pt-6">
+                <div className="text-center py-8">
+                  <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Quiz Coming Soon</h3>
+                  <p className="text-muted-foreground">
+                    Quiz questions for this training module are being prepared. Check back later!
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
         </div>
       </div>
 

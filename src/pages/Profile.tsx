@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, User, Mail, Upload, Save, Briefcase, Award, Leaf } from "lucide-react";
+import { Loader2, User, Mail, Upload, Save, Briefcase, Award, Leaf, UserPlus, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -28,6 +28,8 @@ interface UserStats {
   totalJobs: number;
   totalCredits: number;
   totalCO2Impact: number;
+  followersCount: number;
+  followingCount: number;
 }
 
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -39,9 +41,17 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState<UserStats>({ totalJobs: 0, totalCredits: 0, totalCO2Impact: 0 });
+  const [stats, setStats] = useState<UserStats>({ 
+    totalJobs: 0, 
+    totalCredits: 0, 
+    totalCO2Impact: 0,
+    followersCount: 0,
+    followingCount: 0
+  });
   const [username, setUsername] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get userId from URL params, default to current user
@@ -53,6 +63,7 @@ const Profile = () => {
     if (profileUserId) {
       fetchProfile();
       fetchStats();
+      checkFollowStatus();
     }
   }, [profileUserId]);
 
@@ -79,24 +90,107 @@ const Profile = () => {
 
   const fetchStats = async () => {
     try {
-      const { data, error } = await supabase
+      // Get job stats
+      const { data: jobData, error: jobError } = await supabase
         .from("job_completions")
         .select("earned_credits, estimated_co2_kg_impact")
         .eq("user_id", profileUserId);
 
-      if (error) throw error;
+      if (jobError) throw jobError;
 
-      const totalJobs = data?.length || 0;
-      const totalCredits = data?.reduce((sum, job) => sum + job.earned_credits, 0) || 0;
-      const totalCO2Impact = data?.reduce((sum, job) => sum + Number(job.estimated_co2_kg_impact), 0) || 0;
+      const totalJobs = jobData?.length || 0;
+      const totalCredits = jobData?.reduce((sum, job) => sum + job.earned_credits, 0) || 0;
+      const totalCO2Impact = jobData?.reduce((sum, job) => sum + Number(job.estimated_co2_kg_impact), 0) || 0;
+
+      // Get follow stats
+      const { data: followData, error: followError } = await supabase
+        .from("user_follow_stats")
+        .select("followers_count, following_count")
+        .eq("user_id", profileUserId)
+        .single();
 
       setStats({
         totalJobs,
         totalCredits,
-        totalCO2Impact: Math.round(totalCO2Impact * 100) / 100, // Round to 2 decimals
+        totalCO2Impact: Math.round(totalCO2Impact * 100) / 100,
+        followersCount: followData?.followers_count || 0,
+        followingCount: followData?.following_count || 0,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
+    }
+  };
+
+  const checkFollowStatus = async () => {
+    if (!user || !profileUserId || isOwnProfile) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("follows")
+        .select("id")
+        .eq("follower_id", user.id)
+        .eq("following_id", profileUserId)
+        .maybeSingle();
+
+      if (!error) {
+        setIsFollowing(!!data);
+      }
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+    }
+  };
+
+  const handleFollowToggle = async () => {
+    if (!user || !profileUserId) {
+      toast.error("You must be logged in to follow users");
+      return;
+    }
+
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        // Unfollow
+        const { error } = await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_id", user.id)
+          .eq("following_id", profileUserId);
+
+        if (error) throw error;
+
+        setIsFollowing(false);
+        setStats(prev => ({
+          ...prev,
+          followersCount: Math.max(0, prev.followersCount - 1)
+        }));
+        toast.success("Unfollowed successfully");
+      } else {
+        // Follow
+        const { error } = await supabase
+          .from("follows")
+          .insert({
+            follower_id: user.id,
+            following_id: profileUserId
+          });
+
+        if (error) throw error;
+
+        setIsFollowing(true);
+        setStats(prev => ({
+          ...prev,
+          followersCount: prev.followersCount + 1
+        }));
+        toast.success("Following successfully");
+      }
+    } catch (error: any) {
+      console.error("Error toggling follow:", error);
+      if (error.message?.includes("duplicate")) {
+        toast.error("Already following this user");
+      } else {
+        toast.error("Failed to update follow status");
+      }
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -225,14 +319,14 @@ const Profile = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col items-center gap-2">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Briefcase className="h-5 w-5 text-primary" />
                   </div>
-                  <div>
+                  <div className="text-center">
                     <p className="text-2xl font-bold">{stats.totalJobs}</p>
                     <p className="text-xs text-muted-foreground">{t("profile.jobsCompleted")}</p>
                   </div>
@@ -242,11 +336,11 @@ const Profile = () => {
 
             <Card>
               <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col items-center gap-2">
                   <div className="h-10 w-10 rounded-lg bg-warning/10 flex items-center justify-center">
                     <Award className="h-5 w-5 text-warning" />
                   </div>
-                  <div>
+                  <div className="text-center">
                     <p className="text-2xl font-bold">{stats.totalCredits}</p>
                     <p className="text-xs text-muted-foreground">{t("profile.creditsEarned")}</p>
                   </div>
@@ -256,13 +350,41 @@ const Profile = () => {
 
             <Card>
               <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col items-center gap-2">
                   <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
                     <Leaf className="h-5 w-5 text-success" />
                   </div>
-                  <div>
+                  <div className="text-center">
                     <p className="text-2xl font-bold">{stats.totalCO2Impact}</p>
                     <p className="text-xs text-muted-foreground">{t("profile.co2Impact")}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <User className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">{stats.followersCount}</p>
+                    <p className="text-xs text-muted-foreground">Followers</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <UserPlus className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">{stats.followingCount}</p>
+                    <p className="text-xs text-muted-foreground">Following</p>
                   </div>
                 </div>
               </CardContent>
@@ -392,14 +514,39 @@ const Profile = () => {
                     </Avatar>
                     <div className="flex-1">
                       <h2 className="text-2xl font-bold">{username}</h2>
-                      <p className="text-muted-foreground">
-                        Member since {new Date().toLocaleDateString()}
+                      <p className="text-muted-foreground text-sm">
+                        {stats.followersCount} followers • {stats.followingCount} following
                       </p>
                     </div>
+                    {user && (
+                      <Button
+                        onClick={handleFollowToggle}
+                        disabled={followLoading}
+                        variant={isFollowing ? "outline" : "default"}
+                        className="gap-2"
+                      >
+                        {followLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : isFollowing ? (
+                          <>
+                            <UserMinus className="h-4 w-4" />
+                            Unfollow
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="h-4 w-4" />
+                            Follow
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </div>
                   
-                  <div className="text-center text-muted-foreground py-8">
-                    <p>Friend/Follow functionality coming soon!</p>
+                  <div className="text-center text-muted-foreground py-4">
+                    <p className="text-sm">
+                      {username} has completed {stats.totalJobs} jobs and earned {stats.totalCredits} credits,
+                      contributing to {stats.totalCO2Impact} kg CO₂ saved!
+                    </p>
                   </div>
                 </div>
               )}

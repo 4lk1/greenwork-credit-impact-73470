@@ -77,6 +77,56 @@ export type Database = {
         }
         Relationships: []
       }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "user_follow_stats"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "user_follow_stats"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       job_completions: {
         Row: {
           completed_at: string | null
@@ -119,6 +169,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_follow_stats"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -199,6 +256,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "user_follow_stats"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "job_tasks_job_id_fkey"
@@ -556,6 +620,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "worker_checkins_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "user_follow_stats"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
     }
@@ -566,6 +637,15 @@ export type Database = {
           total_co2_impact: number | null
           total_credits: number | null
           total_jobs: number | null
+        }
+        Relationships: []
+      }
+      user_follow_stats: {
+        Row: {
+          followers_count: number | null
+          following_count: number | null
+          user_id: string | null
+          username: string | null
         }
         Relationships: []
       }

@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Medal, Award, TrendingUp, Target, Calendar, Search } from "lucide-react";
+import { Trophy, Medal, Award, TrendingUp, Target, Calendar, Search, MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -246,6 +247,13 @@ const Leaderboard = () => {
           <p className="text-2xl font-bold text-primary">{entry.total_credits}</p>
           <p className="text-xs text-muted-foreground">credits</p>
         </div>
+        {entry.user_id !== user?.id && (
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/messages?startChat=${entry.user_id}`}>
+              <MessageSquare className="h-4 w-4" />
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );

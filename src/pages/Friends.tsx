@@ -8,7 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Users, UserPlus, Check, X, MapPin, Briefcase, Award } from "lucide-react";
+import { Users, UserPlus, Check, X, MapPin, Briefcase, Award, MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Profile } from "@/types/social";
 
@@ -317,6 +318,12 @@ export default function Friends() {
                               <span>🌍 {stats.totalCo2.toFixed(1)} kg CO₂</span>
                             </div>
                           </div>
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to={`/messages?startChat=${friend.id}`}>
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Message
+                            </Link>
+                          </Button>
                         </div>
                       );
                     })}
@@ -434,14 +441,22 @@ export default function Friends() {
                         <div className="flex-1">
                           <h3 className="font-semibold">{user.display_name || user.username}</h3>
                         </div>
-                        <Button
-                          size="sm"
-                          onClick={() => sendRequestMutation.mutate(user.id)}
-                          disabled={sendRequestMutation.isPending}
-                        >
-                          <UserPlus className="h-4 w-4 mr-1" />
-                          Add Friend
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to={`/messages?startChat=${user.id}`}>
+                              <MessageSquare className="h-4 w-4 mr-1" />
+                              Message
+                            </Link>
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => sendRequestMutation.mutate(user.id)}
+                            disabled={sendRequestMutation.isPending}
+                          >
+                            <UserPlus className="h-4 w-4 mr-1" />
+                            Add Friend
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

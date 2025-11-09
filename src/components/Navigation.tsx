@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { GlobalSearch } from "@/components/GlobalSearch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIntro } from "@/contexts/IntroContext";
 import { Link } from "react-router-dom";
@@ -124,6 +125,9 @@ export const Navigation = () => {
               ))}
             </div>
             
+            <div className="hidden lg:block">
+              <GlobalSearch />
+            </div>
             <LanguageSelector />
             <ThemeToggle />
             

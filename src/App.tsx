@@ -34,6 +34,7 @@ const Friends = lazy(() => import("./pages/Friends"));
 const Communities = lazy(() => import("./pages/Communities"));
 const CommunityNew = lazy(() => import("./pages/CommunityNew"));
 const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
+const Search = lazy(() => import("./pages/Search"));
 
 // Admin pages
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
@@ -116,6 +117,7 @@ const App = memo(() => {
                         <Route path="/communities" element={<PageTransition><Communities /></PageTransition>} />
                         <Route path="/communities/new" element={<ProtectedRoute><PageTransition><CommunityNew /></PageTransition></ProtectedRoute>} />
                         <Route path="/communities/:id" element={<PageTransition><CommunityDetail /></PageTransition>} />
+                        <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
                         
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />

@@ -95,9 +95,16 @@ const JobDetail = () => {
         .from("micro_jobs")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (jobError) throw jobError;
+      
+      if (!jobData) {
+        toast.error("Job not found");
+        setLoading(false);
+        return;
+      }
+      
       setJob(jobData);
 
       // Fetch training module
@@ -106,9 +113,16 @@ const JobDetail = () => {
         .select("*")
         .eq("microjob_id", id)
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (trainingError) throw trainingError;
+      
+      if (!trainingData) {
+        toast.error("Training module not found");
+        setLoading(false);
+        return;
+      }
+      
       setTraining(trainingData);
 
       // Fetch quiz questions

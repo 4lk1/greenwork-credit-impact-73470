@@ -44,35 +44,27 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check if a thread already exists between these two users
-    const { data: existingParticipants } = await supabase
-      .from('message_thread_participants')
-      .select('thread_id')
-      .eq('user_id', user.id);
+    // Check if a thread already exists between these two users using security definer function
+    const { data: existingThreadId, error: checkError } = await supabase
+      .rpc('get_shared_thread_id', {
+        user1_id: user.id,
+        user2_id: other_user_id
+      });
 
-    const myThreadIds = existingParticipants?.map(p => p.thread_id) || [];
+    if (checkError) {
+      console.error('Error checking for existing thread:', checkError);
+    }
 
-    if (myThreadIds.length > 0) {
-      const { data: otherParticipants } = await supabase
-        .from('message_thread_participants')
-        .select('thread_id')
-        .eq('user_id', other_user_id)
-        .in('thread_id', myThreadIds);
-
-      if (otherParticipants && otherParticipants.length > 0) {
-        // Thread exists
-        const existingThreadId = otherParticipants[0].thread_id;
-        
-        console.log('Thread already exists:', existingThreadId);
-        
-        return new Response(
-          JSON.stringify({ thread_id: existingThreadId, created: false }),
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
+    if (existingThreadId) {
+      console.log('Thread already exists:', existingThreadId);
+      
+      return new Response(
+        JSON.stringify({ thread_id: existingThreadId, created: false }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Check if users follow each other

@@ -1001,6 +1001,10 @@ export type Database = {
         Args: { p_data?: Json; p_type: string; p_user_id: string }
         Returns: string
       }
+      get_shared_thread_id: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

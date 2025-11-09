@@ -44,19 +44,24 @@ const Profile = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Get userId from URL params, default to current user
+  const searchParams = new URLSearchParams(window.location.search);
+  const profileUserId = searchParams.get('userId') || user?.id;
+  const isOwnProfile = profileUserId === user?.id;
+
   useEffect(() => {
-    if (user) {
+    if (profileUserId) {
       fetchProfile();
       fetchStats();
     }
-  }, [user]);
+  }, [profileUserId]);
 
   const fetchProfile = async () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("username, avatar_url")
-        .eq("id", user?.id)
+        .eq("id", profileUserId)
         .single();
 
       if (error) throw error;
@@ -77,7 +82,7 @@ const Profile = () => {
       const { data, error } = await supabase
         .from("job_completions")
         .select("earned_credits, estimated_co2_kg_impact")
-        .eq("user_id", user?.id);
+        .eq("user_id", profileUserId);
 
       if (error) throw error;
 
@@ -266,13 +271,14 @@ const Profile = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t("profile.profileInfo")}</CardTitle>
+              <CardTitle>{isOwnProfile ? t("profile.profileInfo") : username}</CardTitle>
               <CardDescription>
-                {t("profile.profileDesc")}
+                {isOwnProfile ? t("profile.profileDesc") : `${stats.totalJobs} jobs completed • ${stats.totalCredits} credits earned`}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleUpdateProfile} className="space-y-6">
+              {isOwnProfile ? (
+                <form onSubmit={handleUpdateProfile} className="space-y-6">
                 {/* Avatar Preview and Upload */}
                 <div className="flex items-center gap-4">
                   <Avatar className="h-20 w-20">
@@ -371,6 +377,32 @@ const Profile = () => {
                   )}
                 </Button>
               </form>
+              ) : (
+                <div className="space-y-6">
+                  {/* Viewing another user's profile */}
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage 
+                        src={avatarUrl || undefined} 
+                        alt={username}
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-bold">{username}</h2>
+                      <p className="text-muted-foreground">
+                        Member since {new Date().toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center text-muted-foreground py-8">
+                    <p>Friend/Follow functionality coming soon!</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

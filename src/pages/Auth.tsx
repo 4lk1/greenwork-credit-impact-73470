@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ const signupSchema = z.object({
 const Auth = () => {
   const navigate = useNavigate();
   const { signIn, signUp, signInWithGoogle, user } = useAuth();
+  const { login: adminLogin } = useAdminAuth();
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -67,6 +69,27 @@ const Auth = () => {
     }
 
     setIsLoading(true);
+    
+    // Check if logging in with admin credentials
+    const isAdminLogin = loginEmail === "admin@greenworks.com" && loginPassword === "admin123";
+    
+    if (isAdminLogin) {
+      // Log into admin system
+      const adminResult = await adminLogin(loginPassword);
+      
+      if (adminResult.success) {
+        toast.success("Logged in as admin!");
+        navigate("/admin");
+        setIsLoading(false);
+        return;
+      } else {
+        toast.error("Admin login failed");
+        setIsLoading(false);
+        return;
+      }
+    }
+    
+    // Regular user login
     const { error } = await signIn(loginEmail, loginPassword, rememberMe);
     setIsLoading(false);
     

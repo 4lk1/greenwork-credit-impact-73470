@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { GlobalSearch } from "@/components/GlobalSearch";
+import { NotificationDropdown } from "@/components/NotificationDropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIntro } from "@/contexts/IntroContext";
 import { Link } from "react-router-dom";
@@ -136,11 +137,7 @@ export const Navigation = () => {
                       <MessageSquare className="h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link to="/notifications">
-                      <Bell className="h-5 w-5" />
-                    </Link>
-                  </Button>
+                  <NotificationDropdown />
                 </>
               )}
               

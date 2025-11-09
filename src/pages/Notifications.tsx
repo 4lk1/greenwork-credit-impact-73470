@@ -3,12 +3,19 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Bell, UserPlus, MessageSquare, Users, Briefcase, Check } from "lucide-react";
+import { Loader2, Bell, UserPlus, MessageSquare, Users, Briefcase, Check, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Notification {
   id: string;
@@ -22,10 +29,33 @@ const Notifications = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [filterStatus, setFilterStatus] = useState<"all" | "unread" | "read">("all");
+  const [filterType, setFilterType] = useState<string>("all");
 
   useEffect(() => {
     if (user) {
       fetchNotifications();
+      
+      // Subscribe to new notifications
+      const channel = supabase
+        .channel('notifications-page')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            setNotifications((prev) => [payload.new as Notification, ...prev]);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
@@ -127,6 +157,17 @@ const Notifications = () => {
     }
   };
 
+  const filteredNotifications = notifications.filter((n) => {
+    // Filter by read status
+    if (filterStatus === "unread" && n.is_read) return false;
+    if (filterStatus === "read" && !n.is_read) return false;
+    
+    // Filter by type
+    if (filterType !== "all" && n.type !== filterType) return false;
+    
+    return true;
+  });
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   if (loading) {
@@ -146,39 +187,72 @@ const Notifications = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <Bell className="h-8 w-8" />
-                Notifications
-              </h1>
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold flex items-center gap-2">
+                  <Bell className="h-8 w-8" />
+                  Notifications
+                </h1>
+                {unreadCount > 0 && (
+                  <p className="text-muted-foreground mt-1">
+                    You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
               {unreadCount > 0 && (
-                <p className="text-muted-foreground mt-1">
-                  You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-                </p>
+                <Button variant="outline" onClick={markAllAsRead}>
+                  <Check className="mr-2 h-4 w-4" />
+                  Mark all as read
+                </Button>
               )}
             </div>
-            {unreadCount > 0 && (
-              <Button variant="outline" onClick={markAllAsRead}>
-                <Check className="mr-2 h-4 w-4" />
-                Mark all as read
-              </Button>
-            )}
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Tabs value={filterStatus} onValueChange={(v) => setFilterStatus(v as any)} className="flex-1">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="unread">Unread</TabsTrigger>
+                  <TabsTrigger value="read">Read</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="new_follower">New followers</SelectItem>
+                  <SelectItem value="new_message">Messages</SelectItem>
+                  <SelectItem value="message_request">Message requests</SelectItem>
+                  <SelectItem value="community_join">Community joins</SelectItem>
+                  <SelectItem value="job_completed">Job completions</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <Card>
             <CardContent className="p-0">
-              {notifications.length === 0 ? (
+              {filteredNotifications.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Bell className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p>No notifications yet</p>
+                  <p>
+                    {notifications.length === 0
+                      ? "No notifications yet"
+                      : "No notifications match your filters"}
+                  </p>
                   <p className="text-sm mt-2">
-                    We'll notify you when something important happens
+                    {notifications.length === 0
+                      ? "We'll notify you when something important happens"
+                      : "Try adjusting your filters"}
                   </p>
                 </div>
               ) : (
                 <div className="divide-y">
-                  {notifications.map((notification) => {
+                  {filteredNotifications.map((notification) => {
                     const link = getNotificationLink(notification);
                     const content = (
                       <div

@@ -109,14 +109,14 @@ const App = memo(() => {
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
                         <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
-                          <Route index element={<AdminOverview />} />
-                          <Route path="users" element={<AdminUsers />} />
-                          <Route path="users/:id" element={<AdminUserDetail />} />
-                          <Route path="microjobs" element={<AdminMicroJobs />} />
-                          <Route path="microjobs/:id/edit" element={<AdminMicroJobForm />} />
-                          <Route path="completions" element={<AdminCompletions />} />
-                          <Route path="leaderboards" element={<AdminLeaderboards />} />
-                          <Route path="data" element={<AdminData />} />
+                          <Route index element={<Suspense fallback={<div>Loading...</div>}><AdminOverview /></Suspense>} />
+                          <Route path="users" element={<Suspense fallback={<div>Loading...</div>}><AdminUsers /></Suspense>} />
+                          <Route path="users/:id" element={<Suspense fallback={<div>Loading...</div>}><AdminUserDetail /></Suspense>} />
+                          <Route path="microjobs" element={<Suspense fallback={<div>Loading...</div>}><AdminMicroJobs /></Suspense>} />
+                          <Route path="microjobs/:id/edit" element={<Suspense fallback={<div>Loading...</div>}><AdminMicroJobForm /></Suspense>} />
+                          <Route path="completions" element={<Suspense fallback={<div>Loading...</div>}><AdminCompletions /></Suspense>} />
+                          <Route path="leaderboards" element={<Suspense fallback={<div>Loading...</div>}><AdminLeaderboards /></Suspense>} />
+                          <Route path="data" element={<Suspense fallback={<div>Loading...</div>}><AdminData /></Suspense>} />
                         </Route>
                         
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

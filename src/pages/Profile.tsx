@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, User, Mail, Upload, Save, Briefcase, Award, Leaf, UserPlus, UserMinus, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Link } from "react-router-dom";
 
 const usernameSchema = z
   .string()

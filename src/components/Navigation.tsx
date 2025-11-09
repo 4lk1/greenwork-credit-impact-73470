@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Leaf, Briefcase, TrendingUp, Globe, Menu, X, LogOut, User, Sparkles, Trophy, Shield } from "lucide-react";
+import { Leaf, Briefcase, TrendingUp, Globe, Menu, X, LogOut, User, Sparkles, Trophy, Shield, MessageSquare, Bell, Users as UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,6 +32,7 @@ export const Navigation = () => {
   const navItems = [
     { to: "/", label: t("nav.home"), icon: Leaf },
     { to: "/jobs", label: t("nav.jobs"), icon: Briefcase },
+    { to: "/communities", label: "Communities", icon: UsersIcon },
     { to: "/regions", label: t("nav.regions"), icon: Globe },
     { to: "/impact", label: t("nav.impact"), icon: TrendingUp },
     { to: "/quiz", label: "AI Quiz", icon: Sparkles },
@@ -127,6 +128,22 @@ export const Navigation = () => {
               </div>
               
               <GlobalSearch />
+              
+              {user && (
+                <>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link to="/messages">
+                      <MessageSquare className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link to="/notifications">
+                      <Bell className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </>
+              )}
+              
               <LanguageSelector />
               <ThemeToggle />
               
@@ -169,6 +186,18 @@ export const Navigation = () => {
                       <Link to="/profile" className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/friends" className="cursor-pointer">
+                        <UsersIcon className="mr-2 h-4 w-4" />
+                        <span>Friends</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/messages" className="cursor-pointer">
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        <span>Messages</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => signOut()}>

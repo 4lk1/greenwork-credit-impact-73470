@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, User, Mail, Upload, Save, Briefcase, Award, Leaf, UserPlus, UserMinus } from "lucide-react";
+import { Loader2, User, Mail, Upload, Save, Briefcase, Award, Leaf, UserPlus, UserMinus, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -370,7 +370,11 @@ const Profile = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold">{stats.followersCount}</p>
-                    <p className="text-xs text-muted-foreground">Followers</p>
+                    <p className="text-xs text-muted-foreground">
+                      <Link to={`/friends?userId=${profileUserId}&tab=followers`} className="hover:underline">
+                        Followers
+                      </Link>
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -384,7 +388,11 @@ const Profile = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold">{stats.followingCount}</p>
-                    <p className="text-xs text-muted-foreground">Following</p>
+                    <p className="text-xs text-muted-foreground">
+                      <Link to={`/friends?userId=${profileUserId}&tab=following`} className="hover:underline">
+                        Following
+                      </Link>
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -518,7 +526,7 @@ const Profile = () => {
                         {stats.followersCount} followers • {stats.followingCount} following
                       </p>
                     </div>
-                    {user && (
+                    <div className="flex items-center gap-4">
                       <Button
                         onClick={handleFollowToggle}
                         disabled={followLoading}
@@ -539,7 +547,13 @@ const Profile = () => {
                           </>
                         )}
                       </Button>
-                    )}
+                      <Button variant="outline" asChild>
+                        <Link to={`/messages?startChat=${profileUserId}`}>
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Message
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="text-center text-muted-foreground py-4">

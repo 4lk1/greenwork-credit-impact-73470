@@ -49,6 +49,7 @@ export type Database = {
           region_or_country: string | null
           rules: string | null
           tags: string[] | null
+          updated_at: string
         }
         Insert: {
           announcement?: string | null
@@ -63,6 +64,7 @@ export type Database = {
           region_or_country?: string | null
           rules?: string | null
           tags?: string[] | null
+          updated_at?: string
         }
         Update: {
           announcement?: string | null
@@ -77,6 +79,7 @@ export type Database = {
           region_or_country?: string | null
           rules?: string | null
           tags?: string[] | null
+          updated_at?: string
         }
         Relationships: [
           {

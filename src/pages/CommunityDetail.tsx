@@ -70,7 +70,7 @@ export default function CommunityDetail() {
         .from("community_memberships")
         .select(`
           *,
-          profile:profiles(id, username, display_name, avatar_url)
+          profile:profiles(id, username, avatar_url)
         `)
         .eq("community_id", id)
         .order("joined_at", { ascending: true });
@@ -541,7 +541,7 @@ export default function CommunityDetail() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold">
-                              {member.profile.display_name || member.profile.username}
+                              {member.profile.username}
                             </h3>
                             {member.role !== "member" && (
                               <Badge variant="secondary" className="text-xs">
@@ -601,7 +601,7 @@ export default function CommunityDetail() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold">
-                              {member.profile.display_name || member.profile.username}
+                              {member.profile.username}
                             </h3>
                             {member.role !== "member" && (
                               <Badge variant="secondary">{member.role}</Badge>

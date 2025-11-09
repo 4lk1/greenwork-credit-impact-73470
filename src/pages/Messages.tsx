@@ -44,6 +44,7 @@ const Messages = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeThreadId = searchParams.get('threadId');
+  const startChatUserId = searchParams.get('startChat');
   
   const [loading, setLoading] = useState(true);
   const [inboxThreads, setInboxThreads] = useState<Thread[]>([]);
@@ -52,6 +53,7 @@ const Messages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [startingChat, setStartingChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,10 +63,37 @@ const Messages = () => {
   }, [user]);
 
   useEffect(() => {
-    if (activeThreadId) {
+    if (startChatUserId && user) {
+      handleStartChat(startChatUserId);
+    } else if (activeThreadId) {
       loadThread(activeThreadId);
     }
-  }, [activeThreadId]);
+  }, [activeThreadId, startChatUserId, user]);
+
+  useEffect(() => {
+    if (activeThread) {
+      // Subscribe to new messages in active thread
+      const channel = supabase
+        .channel(`messages-${activeThread.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `thread_id=eq.${activeThread.id}`,
+          },
+          (payload) => {
+            setMessages((prev) => [...prev, payload.new as Message]);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [activeThread]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -257,6 +286,32 @@ const Messages = () => {
     }
   };
 
+  const handleStartChat = async (otherUserId: string) => {
+    try {
+      setStartingChat(true);
+
+      const { data, error } = await supabase.functions.invoke('start-message-thread', {
+        body: { other_user_id: otherUserId },
+      });
+
+      if (error) throw error;
+
+      // Remove startChat param and set threadId
+      setSearchParams({ threadId: data.thread_id });
+      await fetchThreads();
+      await loadThread(data.thread_id);
+
+      if (data.created) {
+        toast.success("New conversation started");
+      }
+    } catch (error) {
+      console.error("Error starting chat:", error);
+      toast.error("Failed to start conversation");
+    } finally {
+      setStartingChat(false);
+    }
+  };
+
   const ThreadItem = ({ thread }: { thread: Thread }) => (
     <button
       onClick={() => {
@@ -289,12 +344,17 @@ const Messages = () => {
     </button>
   );
 
-  if (loading) {
+  if (loading || startingChat) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">
+              {startingChat ? "Starting conversation..." : "Loading..."}
+            </p>
+          </div>
         </div>
       </div>
     );

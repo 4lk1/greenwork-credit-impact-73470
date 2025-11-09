@@ -248,8 +248,8 @@ export const Navigation = () => {
         </div>
       </nav>
       
-      {/* Search bar positioned below navbar at top right */}
-      <div className="hidden lg:block fixed top-20 right-8 z-40">
+      {/* Search bar positioned below navbar at top left */}
+      <div className="hidden lg:block fixed top-20 left-8 z-40">
         <GlobalSearch />
       </div>
     </>

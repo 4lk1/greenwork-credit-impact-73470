@@ -48,8 +48,8 @@ export default function Leaderboards() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-foreground">Leaderboards</h2>
-        <p className="text-muted-foreground">Top performers and statistics</p>
+        <h2 className="text-3xl font-bold text-foreground">Global Leaderboards</h2>
+        <p className="text-muted-foreground">Top performers and statistics across all users</p>
       </div>
 
       <Alert>

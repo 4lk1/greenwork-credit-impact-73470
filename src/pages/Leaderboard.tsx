@@ -261,15 +261,20 @@ const Leaderboard = () => {
             Leaderboard
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-            Top Performers
+            Global Leaderboard
           </h1>
           <p className="text-muted-foreground">
-            See how you stack up against other sustainability learners
+            Rankings of all users by earned credits and impact
           </p>
         </div>
 
         {user && userStats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 animate-fade-in">
+          <>
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-foreground">Your Stats</h2>
+              <p className="text-sm text-muted-foreground">Your personal performance metrics</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 animate-fade-in">
             <Card className="gradient-card hover:shadow-medium transition-smooth">
               <CardContent className="pt-6 text-center">
                 <Target className="h-8 w-8 mx-auto mb-2 text-primary" />
@@ -299,6 +304,7 @@ const Leaderboard = () => {
               </CardContent>
             </Card>
           </div>
+          </>
         )}
 
         <Card className="gradient-card border-2 shadow-large">
@@ -306,7 +312,7 @@ const Leaderboard = () => {
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-primary" />
-                Leaderboard Rankings
+                Global Rankings (All Users)
               </div>
             </CardTitle>
             <div className="flex gap-2 mt-4">

@@ -29,6 +29,12 @@ const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const TaskGraph = lazy(() => import("./pages/TaskGraph"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+// Social & Community pages
+const Friends = lazy(() => import("./pages/Friends"));
+const Communities = lazy(() => import("./pages/Communities"));
+const CommunityNew = lazy(() => import("./pages/CommunityNew"));
+const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
+
 // Admin pages
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -104,6 +110,12 @@ const App = memo(() => {
                         <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
                         <Route path="/task-graph/:jobId" element={<ProtectedRoute><PageTransition><TaskGraph /></PageTransition></ProtectedRoute>} />
                         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+                        
+                        {/* Social & Community Routes */}
+                        <Route path="/friends" element={<ProtectedRoute><PageTransition><Friends /></PageTransition></ProtectedRoute>} />
+                        <Route path="/communities" element={<PageTransition><Communities /></PageTransition>} />
+                        <Route path="/communities/new" element={<ProtectedRoute><PageTransition><CommunityNew /></PageTransition></ProtectedRoute>} />
+                        <Route path="/communities/:id" element={<PageTransition><CommunityDetail /></PageTransition>} />
                         
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />

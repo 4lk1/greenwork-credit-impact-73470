@@ -88,6 +88,69 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Social & Community Section */}
+      <section className="container mx-auto px-4 py-12 border-b border-border/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">Social & Community</h2>
+            <p className="text-muted-foreground">Connect, collaborate, and amplify your impact together</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="hover:shadow-lg transition-smooth cursor-pointer" onClick={() => window.location.href = '/friends'}>
+              <CardContent className="pt-6 text-center space-y-4">
+                <div className="mx-auto h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium">
+                  <Users className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Friends</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Connect with other members and track your collective impact
+                  </p>
+                </div>
+                <Button variant="outline" className="w-full">
+                  View Friends
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-smooth cursor-pointer" onClick={() => window.location.href = '/communities'}>
+              <CardContent className="pt-6 text-center space-y-4">
+                <div className="mx-auto h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium">
+                  <Heart className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Communities</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Join teams to complete micro-jobs and multiply your climate impact
+                  </p>
+                </div>
+                <Button variant="outline" className="w-full">
+                  Browse Communities
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-smooth cursor-pointer" onClick={() => window.location.href = '/leaderboard'}>
+              <CardContent className="pt-6 text-center space-y-4">
+                <div className="mx-auto h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-medium">
+                  <Award className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Leaderboards</h3>
+                  <p className="text-sm text-muted-foreground">
+                    See top individuals and communities making the biggest impact
+                  </p>
+                </div>
+                <Button variant="outline" className="w-full">
+                  View Rankings
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* App Introduction Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">

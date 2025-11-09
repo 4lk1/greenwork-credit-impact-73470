@@ -29,12 +29,12 @@ Deno.serve(async (req) => {
       }
     );
 
-    const url = new URL(req.url);
-    const query = url.searchParams.get('q') || '';
-    const type = url.searchParams.get('type') || 'all';
-    const limit = type === 'all' ? 5 : 20;
+    const { q, type } = await req.json();
+    const query = q || '';
+    const searchType = type || 'all';
+    const limit = searchType === 'all' ? 5 : 20;
 
-    console.log(`Searching for: "${query}", type: ${type}`);
+    console.log(`Searching for: "${query}", type: ${searchType}`);
 
     if (query.length < 2) {
       return new Response(
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     };
 
     // Search users (profiles)
-    if (type === 'all' || type === 'users') {
+    if (searchType === 'all' || searchType === 'users') {
       const { data: users, error: usersError } = await supabaseClient
         .from('profiles')
         .select('id, username, avatar_url')
@@ -87,36 +87,35 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Search communities
-    if (type === 'all' || type === 'communities') {
-      const { data: communities, error: communitiesError } = await supabaseClient
-        .from('communities')
-        .select('id, name, description, region_or_country, is_public')
-        .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
-        .eq('is_public', true)
-        .limit(limit);
+    // Search communities (disabled - table doesn't exist)
+    // if (searchType === 'all' || searchType === 'communities') {
+    //   const { data: communities, error: communitiesError } = await supabaseClient
+    //     .from('communities')
+    //     .select('id, name, description, region_or_country, is_public')
+    //     .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+    //     .eq('is_public', true)
+    //     .limit(limit);
 
-      if (!communitiesError && communities) {
-        // Fetch member count for each community
-        const communitiesWithStats = await Promise.all(
-          communities.map(async (community) => {
-            const { count } = await supabaseClient
-              .from('community_memberships')
-              .select('*', { count: 'exact', head: true })
-              .eq('community_id', community.id);
+    //   if (!communitiesError && communities) {
+    //     const communitiesWithStats = await Promise.all(
+    //       communities.map(async (community) => {
+    //         const { count } = await supabaseClient
+    //           .from('community_memberships')
+    //           .select('*', { count: 'exact', head: true })
+    //           .eq('community_id', community.id);
 
-            return {
-              ...community,
-              member_count: count || 0,
-            };
-          })
-        );
-        results.communities = communitiesWithStats;
-      }
-    }
+    //         return {
+    //           ...community,
+    //           member_count: count || 0,
+    //         };
+    //       })
+    //     );
+    //     results.communities = communitiesWithStats;
+    //   }
+    // }
 
     // Search micro-jobs
-    if (type === 'all' || type === 'microjobs') {
+    if (searchType === 'all' || searchType === 'microjobs') {
       const { data: microjobs, error: microjobsError } = await supabaseClient
         .from('micro_jobs')
         .select('id, title, category, difficulty_level, reward_credits, estimated_duration_minutes, estimated_co2_kg_impact')
@@ -130,7 +129,7 @@ Deno.serve(async (req) => {
     }
 
     // Search regions/countries
-    if (type === 'all' || type === 'regions') {
+    if (searchType === 'all' || searchType === 'regions') {
       const { data: regions, error: regionsError } = await supabaseClient
         .from('country_scores')
         .select('id, country_name, iso_country, priority_score, climate_need_score, inequality_score')
@@ -143,7 +142,7 @@ Deno.serve(async (req) => {
     }
 
     // Search learning content (training modules)
-    if (type === 'all' || type === 'learning') {
+    if (searchType === 'all' || searchType === 'learning') {
       const { data: learning, error: learningError } = await supabaseClient
         .from('training_modules')
         .select('id, title, content, microjob_id')

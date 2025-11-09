@@ -172,6 +172,41 @@ This is a hackathon project, but contributions are welcome! Areas for improvemen
 
 ---
 
+## 🔐 Admin Dashboard
+
+The app includes a comprehensive admin dashboard for managing users, micro-jobs, completions, and data.
+
+### Accessing the Admin Area
+
+1. **Login URL**: Navigate to `/admin/login`
+2. **Password**: Set via `ADMIN_PASSWORD` environment variable
+   - Default: `admin123` (if not set)
+   - For production, always set a strong admin password
+
+### Setting Admin Password
+
+To set a custom admin password, add the `ADMIN_PASSWORD` secret in your Lovable Cloud backend settings.
+
+### Admin Features
+
+The admin dashboard provides:
+
+- **Overview**: Key statistics and metrics dashboard
+- **Users Management**: View, edit, and manage user accounts
+- **Micro-Jobs**: Create, edit, and manage job listings
+- **Completions**: View all job completions with filters
+- **Leaderboards**: Top users and countries by performance
+- **Data Management**: Edit country scores and recommendations
+
+### Security
+
+- Admin sessions expire after 24 hours
+- Password-protected access
+- Separate authentication from user accounts
+- All admin operations are logged
+
+---
+
 ## 📄 License
 
 Built for the International hAIckathon 2025

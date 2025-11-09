@@ -132,7 +132,7 @@ const JobDetail = () => {
         if (progressData) {
           setProgressId(progressData.id);
           setAnswers((progressData.quiz_answers as Record<string, string>) || {});
-          setLastSaved(new Date(progressData.last_updated));
+          setLastSaved(new Date(progressData.updated_at));
           toast.success("Progress restored", {
             description: "Your previous answers have been loaded.",
           });

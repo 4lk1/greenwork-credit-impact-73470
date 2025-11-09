@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
+import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { IntroProvider } from "@/contexts/IntroContext";
@@ -27,6 +29,18 @@ const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const FieldOps = lazy(() => import("./pages/FieldOps"));
 const TaskGraph = lazy(() => import("./pages/TaskGraph"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Admin pages
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/Overview"));
+const AdminUsers = lazy(() => import("./pages/admin/Users"));
+const AdminUserDetail = lazy(() => import("./pages/admin/UserDetail"));
+const AdminMicroJobs = lazy(() => import("./pages/admin/MicroJobs"));
+const AdminMicroJobForm = lazy(() => import("./pages/admin/MicroJobForm"));
+const AdminCompletions = lazy(() => import("./pages/admin/Completions"));
+const AdminLeaderboards = lazy(() => import("./pages/admin/Leaderboards"));
+const AdminData = lazy(() => import("./pages/admin/Data"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,27 +89,43 @@ const App = memo(() => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <AuthProvider>
-              <Suspense fallback={<PageLoadingSkeleton />}>
-                <Routes>
-                <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-                <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
-                <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
-                <Route path="/impact" element={<ProtectedRoute><PageTransition><Impact /></PageTransition></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
-                <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
-                <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
-                <Route path="/quiz" element={<ProtectedRoute><PageTransition><QuizChat /></PageTransition></ProtectedRoute>} />
-                <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
-                <Route path="/field-ops" element={<ProtectedRoute><PageTransition><FieldOps /></PageTransition></ProtectedRoute>} />
-                <Route path="/task-graph/:jobId" element={<ProtectedRoute><PageTransition><TaskGraph /></PageTransition></ProtectedRoute>} />
-                <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
-                </Routes>
-              </Suspense>
-              </AuthProvider>
-            </BrowserRouter>
+                <AdminAuthProvider>
+                  <AuthProvider>
+                    <Suspense fallback={<PageLoadingSkeleton />}>
+                      <Routes>
+                        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+                        <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
+                        <Route path="/jobs/:id" element={<PageTransition><JobDetail /></PageTransition>} />
+                        <Route path="/impact" element={<ProtectedRoute><PageTransition><Impact /></PageTransition></ProtectedRoute>} />
+                        <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+                        <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
+                        <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
+                        <Route path="/quiz" element={<ProtectedRoute><PageTransition><QuizChat /></PageTransition></ProtectedRoute>} />
+                        <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
+                        <Route path="/field-ops" element={<ProtectedRoute><PageTransition><FieldOps /></PageTransition></ProtectedRoute>} />
+                        <Route path="/task-graph/:jobId" element={<ProtectedRoute><PageTransition><TaskGraph /></PageTransition></ProtectedRoute>} />
+                        <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+                        
+                        {/* Admin Routes */}
+                        <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
+                        <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
+                          <Route index element={<AdminOverview />} />
+                          <Route path="users" element={<AdminUsers />} />
+                          <Route path="users/:id" element={<AdminUserDetail />} />
+                          <Route path="microjobs" element={<AdminMicroJobs />} />
+                          <Route path="microjobs/:id/edit" element={<AdminMicroJobForm />} />
+                          <Route path="completions" element={<AdminCompletions />} />
+                          <Route path="leaderboards" element={<AdminLeaderboards />} />
+                          <Route path="data" element={<AdminData />} />
+                        </Route>
+                        
+                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+                      </Routes>
+                    </Suspense>
+                  </AuthProvider>
+                </AdminAuthProvider>
+              </BrowserRouter>
           </TooltipProvider>
           </IntroProvider>
         </LanguageProvider>

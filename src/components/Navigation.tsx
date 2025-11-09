@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Leaf, Briefcase, TrendingUp, Globe, Menu, X, LogOut, User, Sparkles, Trophy, Map } from "lucide-react";
+import { Leaf, Briefcase, TrendingUp, Globe, Menu, X, LogOut, User, Sparkles, Trophy, Map, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,6 +26,7 @@ export const Navigation = () => {
   const { showIntro } = useIntro();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const navItems = [
     { to: "/", label: t("nav.home"), icon: Leaf },
@@ -41,6 +42,10 @@ export const Navigation = () => {
     if (user) {
       fetchUserProfile();
     }
+    
+    // Check admin session
+    const adminToken = localStorage.getItem('admin_session_token');
+    setIsAdmin(!!adminToken);
   }, [user]);
 
   const fetchUserProfile = async () => {
@@ -103,6 +108,15 @@ export const Navigation = () => {
             
             <LanguageSelector />
             <ThemeToggle />
+            
+            {isAdmin && (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/admin">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Admin
+                </Link>
+              </Button>
+            )}
             
             {user ? (
               <DropdownMenu>

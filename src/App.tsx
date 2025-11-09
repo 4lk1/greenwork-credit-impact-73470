@@ -24,6 +24,8 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Auth = lazy(() => import("./pages/Auth"));
 const QuizChat = lazy(() => import("./pages/QuizChat"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const FieldOps = lazy(() => import("./pages/FieldOps"));
+const TaskGraph = lazy(() => import("./pages/TaskGraph"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -85,6 +87,8 @@ const App = memo(() => {
                 <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
                 <Route path="/quiz" element={<ProtectedRoute><PageTransition><QuizChat /></PageTransition></ProtectedRoute>} />
                 <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
+                <Route path="/field-ops" element={<ProtectedRoute><PageTransition><FieldOps /></PageTransition></ProtectedRoute>} />
+                <Route path="/task-graph/:jobId" element={<ProtectedRoute><PageTransition><TaskGraph /></PageTransition></ProtectedRoute>} />
                 <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

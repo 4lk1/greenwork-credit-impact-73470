@@ -128,6 +128,66 @@ export type Database = {
         }
         Relationships: []
       }
+      job_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          depends_on: string[] | null
+          description: string | null
+          id: string
+          job_id: string
+          order_index: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          depends_on?: string[] | null
+          description?: string | null
+          id?: string
+          job_id: string
+          order_index?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          depends_on?: string[] | null
+          description?: string | null
+          id?: string
+          job_id?: string
+          order_index?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_tasks_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "micro_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       micro_jobs: {
         Row: {
           category: string
@@ -420,6 +480,60 @@ export type Database = {
         }
         Relationships: []
       }
+      worker_checkins: {
+        Row: {
+          accuracy: number | null
+          comment: string | null
+          created_at: string
+          id: string
+          job_id: string
+          latitude: number
+          longitude: number
+          status: Database["public"]["Enums"]["worker_status"]
+          timestamp: string
+          worker_id: string
+        }
+        Insert: {
+          accuracy?: number | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          job_id: string
+          latitude: number
+          longitude: number
+          status?: Database["public"]["Enums"]["worker_status"]
+          timestamp?: string
+          worker_id: string
+        }
+        Update: {
+          accuracy?: number | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string
+          latitude?: number
+          longitude?: number
+          status?: Database["public"]["Enums"]["worker_status"]
+          timestamp?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_checkins_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "micro_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worker_checkins_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       job_stats: {
@@ -436,7 +550,8 @@ export type Database = {
       cleanup_expired_verification_codes: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      task_status: "pending" | "in_progress" | "done"
+      worker_status: "idle" | "active" | "paused" | "finished"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -563,6 +678,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      task_status: ["pending", "in_progress", "done"],
+      worker_status: ["idle", "active", "paused", "finished"],
+    },
   },
 } as const

@@ -126,6 +126,7 @@ export const Navigation = () => {
                 ))}
               </div>
               
+              <GlobalSearch />
               <LanguageSelector />
               <ThemeToggle />
               
@@ -247,11 +248,6 @@ export const Navigation = () => {
           )}
         </div>
       </nav>
-      
-      {/* Search bar positioned below logo - stays fixed while scrolling */}
-      <div className="hidden lg:block fixed top-20 left-8 z-40">
-        <GlobalSearch />
-      </div>
     </>
   );
 };

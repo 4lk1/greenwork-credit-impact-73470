@@ -24,7 +24,6 @@ const Regions = lazy(() => import("./pages/Regions"));
 const RegionDetail = lazy(() => import("./pages/RegionDetail"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Auth = lazy(() => import("./pages/Auth"));
-const QuizChat = lazy(() => import("./pages/QuizChat"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const TaskGraph = lazy(() => import("./pages/TaskGraph"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -109,7 +108,6 @@ const App = memo(() => {
                         <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
                         <Route path="/regions" element={<PageTransition><Regions /></PageTransition>} />
                         <Route path="/regions/:id" element={<PageTransition><RegionDetail /></PageTransition>} />
-                        <Route path="/quiz" element={<ProtectedRoute><PageTransition><QuizChat /></PageTransition></ProtectedRoute>} />
                         <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
                         <Route path="/task-graph/:jobId" element={<ProtectedRoute><PageTransition><TaskGraph /></PageTransition></ProtectedRoute>} />
                         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />

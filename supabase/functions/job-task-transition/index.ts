@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const requestSchema = z.object({
+  task_id: z.string().uuid("Invalid task ID format"),
+  new_status: z.enum(['pending', 'in_progress', 'done'], {
+    errorMap: () => ({ message: "Status must be 'pending', 'in_progress', or 'done'" })
+  }),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -30,7 +38,17 @@ serve(async (req) => {
       );
     }
 
-    const { task_id, new_status } = await req.json();
+    const body = await req.json();
+    const validation = requestSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validation.error.issues }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { task_id, new_status } = validation.data;
 
     // Fetch the task
     const { data: task, error: taskError } = await supabaseClient

@@ -1,9 +1,15 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.80.0';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema - currently no required parameters, but prepared for future auth
+const requestSchema = z.object({
+  sessionToken: z.string().uuid("Invalid session token format").optional(),
+}).optional();
 
 interface MicroJob {
   title: string;
@@ -135,6 +141,25 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Validate request body if present
+    let body = {};
+    try {
+      const text = await req.text();
+      if (text) {
+        body = JSON.parse(text);
+        const validation = requestSchema.safeParse(body);
+        
+        if (!validation.success) {
+          return new Response(
+            JSON.stringify({ error: 'Invalid input', details: validation.error.issues }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+    } catch (e) {
+      // Empty body is acceptable
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);

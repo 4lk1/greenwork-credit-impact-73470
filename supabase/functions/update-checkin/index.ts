@@ -1,10 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const requestSchema = z.object({
+  job_id: z.string().uuid("Invalid job ID format"),
+  latitude: z.number().min(-90).max(90, "Invalid latitude"),
+  longitude: z.number().min(-180).max(180, "Invalid longitude"),
+  accuracy: z.number().min(0).max(1000000, "Invalid accuracy value").optional(),
+  status: z.enum(['active', 'inactive', 'completed']).optional(),
+  comment: z.string().max(500, "Comment too long (max 500 characters)").optional(),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -30,25 +40,17 @@ serve(async (req) => {
       );
     }
 
-    const { job_id, latitude, longitude, accuracy, status, comment } = await req.json();
-
-    // Validate GPS coordinates
-    if (!latitude || !longitude || 
-        latitude < -90 || latitude > 90 || 
-        longitude < -180 || longitude > 180) {
+    const body = await req.json();
+    const validation = requestSchema.safeParse(body);
+    
+    if (!validation.success) {
       return new Response(
-        JSON.stringify({ error: 'Invalid GPS coordinates' }),
+        JSON.stringify({ error: 'Invalid input', details: validation.error.issues }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate accuracy (if provided)
-    if (accuracy !== undefined && (accuracy < 0 || accuracy > 1000000)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid accuracy value' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const { job_id, latitude, longitude, accuracy, status, comment } = validation.data;
 
     // Insert check-in
     const { data: checkin, error } = await supabaseClient

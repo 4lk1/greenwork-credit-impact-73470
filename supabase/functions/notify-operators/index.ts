@@ -1,10 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const requestSchema = z.object({
+  job_id: z.string().uuid("Invalid job ID format"),
+  event_type: z.string().min(1).max(100, "Event type too long"),
+  message: z.string().min(1).max(500, "Message too long (max 500 characters)"),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -30,7 +37,17 @@ serve(async (req) => {
       );
     }
 
-    const { job_id, event_type, message } = await req.json();
+    const body = await req.json();
+    const validation = requestSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: validation.error.issues }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { job_id, event_type, message } = validation.data;
 
     // Fetch job details
     const { data: job, error: jobError } = await supabaseClient
